@@ -48,7 +48,7 @@ export function HeaderDesktop({ activeHref = '/' }: HeaderDesktopProps) {
 
         {/* Right: Actions */}
         <div className="flex flex-none items-center gap-2 text-on-surface">
-          <Link href="/account" className="flex flex-col justify-center rounded-sm px-3 py-1.5 transition-colors hover:border hover:border-outline hover:bg-secondary-container">
+          <Link href="/login" className="flex flex-col justify-center rounded-sm px-3 py-1.5 transition-colors hover:border hover:border-outline hover:bg-secondary-container">
             <span className="text-xs leading-none text-on-surface-variant">Hello, sign in</span>
             <span className="text-sm font-bold leading-tight">Account & Lists</span>
           </Link>
