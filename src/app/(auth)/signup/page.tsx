@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { GoogleSignInButton } from '@/components/auth/GoogleSignInButton'
 
 export default function SignupPage() {
   return (
@@ -19,7 +20,19 @@ export default function SignupPage() {
           <h2 className="mt-3 font-display text-3xl font-extrabold tracking-[-0.04em] text-on-surface">Let&apos;s get started</h2>
           <p className="mt-2 text-sm text-on-surface-variant">Already a member? <Link href="/login" className="font-bold text-primary transition-colors hover:text-primary-hover">Sign in</Link></p>
 
-          <form className="mt-8 space-y-5">
+          {/* Google OAuth */}
+          <div className="mt-6">
+            <GoogleSignInButton label="Continue with Google" />
+          </div>
+
+          {/* Divider */}
+          <div className="my-6 flex items-center gap-3">
+            <div className="h-px flex-1 bg-outline-variant" />
+            <span className="text-xs font-medium text-on-surface-variant">or sign up with email</span>
+            <div className="h-px flex-1 bg-outline-variant" />
+          </div>
+
+          <form className="space-y-5">
             <div>
               <label htmlFor="full-name" className="block text-sm font-bold text-on-surface">Full name</label>
               <input id="full-name" name="name" type="text" autoComplete="name" required className="mt-2 block w-full rounded-md border border-outline-variant bg-surface px-4 py-3 text-on-surface placeholder-outline shadow-sm transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" placeholder="Enter your full name" />
