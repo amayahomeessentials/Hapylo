@@ -129,7 +129,7 @@ export default function CartPage() {
           )}
         </div>
 
-        <div className="fixed bottom-16 left-0 z-40 flex w-full flex-col gap-2 border-t border-outline-variant bg-surface/90 px-6 py-4 pb-safe backdrop-blur-lg">
+        <div className="fixed right-0 bottom-0 left-0 z-40 flex w-full flex-col gap-2 border-t border-outline-variant bg-surface/90 px-6 py-4 pb-safe backdrop-blur-lg">
           <p className="mb-1 text-center font-label text-caption text-on-surface-variant">Taxes calculated at checkout</p>
           <button 
             onClick={() => router.push('/checkout')}

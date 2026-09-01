@@ -253,7 +253,7 @@ export default function PDPClient({ product, relatedProducts }: PDPClientProps) 
         </section>
       )}
 
-      <div className="glass-panel fixed right-0 bottom-16 left-0 z-40 flex items-center justify-between px-6 py-4 pb-safe md:hidden">
+      <div className="glass-panel fixed right-0 bottom-0 left-0 z-40 flex items-center justify-between px-6 py-4 pb-safe md:hidden">
         <div className="flex items-center rounded-md border border-outline-variant bg-surface p-1">
           <button
             onClick={() => setQuantity(q => Math.max(1, q - 1))}

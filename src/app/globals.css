@@ -80,15 +80,17 @@
   --color-surface-muted: #F3F5F5;
   --color-surface-border: #D4DBDC;
 
-  --spacing-base: 4px;
-  --spacing-xs: 8px;
-  --spacing-sm: 16px;
-  --spacing-md: 24px;
-  --spacing-gutter: 24px;
-  --spacing-lg: 48px;
-  --spacing-xl: 80px;
-  --spacing-margin-mobile: 24px;
-  --spacing-margin-desktop: 48px;
+  /* App tokens deliberately avoid Tailwind's --spacing-* namespace.
+     That namespace drives utilities such as max-w-lg and max-w-sm. */
+  --app-space-base: 4px;
+  --app-space-xs: 8px;
+  --app-space-sm: 16px;
+  --app-space-md: 24px;
+  --app-space-gutter: 24px;
+  --app-space-lg: 48px;
+  --app-space-xl: 80px;
+  --app-space-margin-mobile: 24px;
+  --app-space-margin-desktop: 48px;
 
   --radius-sm: 10px;
   --radius: 14px;

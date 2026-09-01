@@ -3,26 +3,27 @@ import Link from 'next/link'
 
 export default function LoginPage() {
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="relative flex min-h-dvh overflow-hidden bg-background">
       {/* Left Form Side */}
-      <div className="flex flex-1 flex-col justify-center px-6 py-12 sm:px-12 lg:flex-none lg:w-1/2 lg:px-20 xl:px-24">
-        <div className="mx-auto w-full max-w-sm lg:w-96">
-          <div>
-            <Link href="/" className="flex items-center gap-2 font-display text-2xl font-extrabold tracking-[-0.06em] text-primary transition-colors hover:text-primary-hover mb-8 w-fit">
+      <div className="relative z-10 flex flex-1 flex-col justify-center px-5 py-10 sm:px-12 lg:flex-none lg:w-1/2 lg:px-20 xl:px-24">
+        <div className="mx-auto w-full max-w-md rounded-lg bg-surface p-6 shadow-card sm:p-9 lg:max-w-sm lg:bg-transparent lg:p-0 lg:shadow-none">
+          <div className="text-left">
+            <Link href="/" className="mb-10 flex w-fit items-center gap-2 font-display text-2xl font-extrabold tracking-[-0.06em] text-primary transition-colors hover:text-primary-hover">
               <span className="flex h-6 w-6 items-center justify-center rounded-md bg-primary text-xs tracking-normal text-white">H</span>Hapylo
             </Link>
-            <h2 className="font-display text-3xl font-extrabold text-on-surface">
+            <p className="mb-3 text-xs font-extrabold tracking-[0.14em] text-accent uppercase">Welcome back</p>
+            <h1 className="font-display text-3xl font-extrabold tracking-[-0.04em] text-on-surface sm:text-4xl">
               Welcome back
-            </h2>
-            <p className="mt-2 text-sm text-on-surface-variant">
-              Don't have an account? <a href="#" className="font-medium text-primary hover:text-primary-hover transition-colors">Sign up for free</a>
+            </h1>
+            <p className="mt-3 text-sm leading-relaxed text-on-surface-variant">
+              Don&apos;t have an account? <a href="#" className="font-bold text-primary hover:text-primary-hover transition-colors">Sign up for free</a>
             </p>
           </div>
 
-          <div className="mt-10">
+          <div className="mt-8 sm:mt-10">
             <form className="space-y-6">
               <div>
-                <label htmlFor="email-address" className="block text-sm font-medium text-on-surface">Email address</label>
+                <label htmlFor="email-address" className="block text-sm font-bold text-on-surface">Email address</label>
                 <div className="mt-2">
                   <input
                     id="email-address"
@@ -30,14 +31,14 @@ export default function LoginPage() {
                     type="email"
                     autoComplete="email"
                     required
-                    className="block w-full rounded-md border border-outline-variant px-3 py-2.5 text-on-surface placeholder-outline shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary sm:text-sm transition-colors"
+                    className="block w-full rounded-md border border-outline-variant bg-surface px-4 py-3 text-on-surface placeholder-outline shadow-sm transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 sm:text-sm"
                     placeholder="Enter your email"
                   />
                 </div>
               </div>
 
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-on-surface">Password</label>
+                <label htmlFor="password" className="block text-sm font-bold text-on-surface">Password</label>
                 <div className="mt-2">
                   <input
                     id="password"
@@ -45,27 +46,27 @@ export default function LoginPage() {
                     type="password"
                     autoComplete="current-password"
                     required
-                    className="block w-full rounded-md border border-outline-variant px-3 py-2.5 text-on-surface placeholder-outline shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary sm:text-sm transition-colors"
+                    className="block w-full rounded-md border border-outline-variant bg-surface px-4 py-3 text-on-surface placeholder-outline shadow-sm transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 sm:text-sm"
                     placeholder="Enter your password"
                   />
                 </div>
               </div>
 
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex items-center gap-2">
                   <input
                     id="remember-me"
                     name="remember-me"
                     type="checkbox"
                     className="h-4 w-4 rounded border-outline-variant text-primary focus:ring-primary"
                   />
-                  <label htmlFor="remember-me" className="ml-2 block text-sm text-on-surface">
+                  <label htmlFor="remember-me" className="block text-sm text-on-surface">
                     Remember me
                   </label>
                 </div>
 
-                <div className="text-sm">
-                  <a href="#" className="font-medium text-primary hover:text-primary-hover transition-colors">
+                <div className="shrink-0 text-sm">
+                  <a href="#" className="font-bold text-primary hover:text-primary-hover transition-colors">
                     Forgot password?
                   </a>
                 </div>
@@ -74,7 +75,7 @@ export default function LoginPage() {
               <div>
                 <button
                   type="submit"
-                  className="flex w-full justify-center rounded-md bg-primary py-3 text-sm font-bold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+                  className="flex w-full justify-center rounded-md bg-primary py-3.5 text-sm font-bold tracking-wide text-white shadow-primary-glow transition-all hover:-translate-y-0.5 hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
                 >
                   Sign in
                 </button>
