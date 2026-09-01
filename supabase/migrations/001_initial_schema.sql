@@ -11,9 +11,11 @@ create table if not exists profiles (
 
 alter table profiles enable row level security;
 
+drop policy if exists "Users can view own profile" on profiles;
 create policy "Users can view own profile" on profiles
   for select using (auth.uid() = id);
 
+drop policy if exists "Users can update own profile" on profiles;
 create policy "Users can update own profile" on profiles
   for update using (auth.uid() = id);
 
@@ -27,7 +29,8 @@ begin
 end;
 $$ language plpgsql security definer;
 
-create or replace trigger on_auth_user_created
+drop trigger if exists on_auth_user_created on auth.users;
+create trigger on_auth_user_created
   after insert on auth.users
   for each row execute procedure handle_new_user();
 
@@ -42,6 +45,7 @@ create table if not exists categories (
 alter table categories enable row level security;
 
 -- Public read
+drop policy if exists "Categories are publicly readable" on categories;
 create policy "Categories are publicly readable" on categories
   for select using (true);
 
@@ -70,6 +74,7 @@ create table if not exists products (
 alter table products enable row level security;
 
 -- Public read (active products only)
+drop policy if exists "Active products are publicly readable" on products;
 create policy "Active products are publicly readable" on products
   for select using (is_active = true);
 
@@ -87,15 +92,19 @@ create table if not exists addresses (
 
 alter table addresses enable row level security;
 
+drop policy if exists "Users see own addresses" on addresses;
 create policy "Users see own addresses" on addresses
   for select using (auth.uid() = user_id);
 
+drop policy if exists "Users insert own addresses" on addresses;
 create policy "Users insert own addresses" on addresses
   for insert with check (auth.uid() = user_id);
 
+drop policy if exists "Users update own addresses" on addresses;
 create policy "Users update own addresses" on addresses
   for update using (auth.uid() = user_id);
 
+drop policy if exists "Users delete own addresses" on addresses;
 create policy "Users delete own addresses" on addresses
   for delete using (auth.uid() = user_id);
 
@@ -118,9 +127,11 @@ create table if not exists orders (
 
 alter table orders enable row level security;
 
+drop policy if exists "Users see own orders" on orders;
 create policy "Users see own orders" on orders
   for select using (auth.uid() = user_id);
 
+drop policy if exists "Users insert own orders" on orders;
 create policy "Users insert own orders" on orders
   for insert with check (auth.uid() = user_id);
 
@@ -135,6 +146,7 @@ create table if not exists order_items (
 
 alter table order_items enable row level security;
 
+drop policy if exists "Users see own order items" on order_items;
 create policy "Users see own order items" on order_items
   for select using (
     exists (
@@ -144,6 +156,7 @@ create policy "Users see own order items" on order_items
     )
   );
 
+drop policy if exists "Users insert own order items" on order_items;
 create policy "Users insert own order items" on order_items
   for insert with check (
     exists (
