@@ -60,6 +60,10 @@ export async function middleware(request: NextRequest) {
     }
   }
 
+  // Forward the pathname so server layouts can determine the active nav item
+  // without a client component.
+  supabaseResponse.headers.set('x-pathname', request.nextUrl.pathname)
+
   return supabaseResponse
 }
 
