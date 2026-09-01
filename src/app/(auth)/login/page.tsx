@@ -60,7 +60,7 @@ export default function LoginPage() {
           <p className="mt-5 max-w-lg text-lg leading-relaxed text-on-surface-variant">Sign in to revisit your favourites, manage orders, and make every clean feel more effortless.</p>
           <div className="mt-8 hidden items-center gap-4 text-sm text-on-surface-variant sm:flex">
             <span className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary-container text-primary"><span className="material-symbols-outlined">local_shipping</span></span>
-            Free shipping on orders over $50
+            Free shipping on orders over ₹500
           </div>
         </div>
 

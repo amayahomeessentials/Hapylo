@@ -162,9 +162,9 @@ export default function PDPClient({ product, relatedProducts }: PDPClientProps) 
           </div>
 
           <div className="flex items-baseline gap-3">
-            <span className="font-display text-3xl font-extrabold text-primary">${product.price.toFixed(2)}</span>
+            <span className="font-display text-3xl font-extrabold text-primary">₹{product.price.toFixed(2)}</span>
             {product.compare_at_price && (
-              <span className="text-lg text-outline line-through">${product.compare_at_price.toFixed(2)}</span>
+              <span className="text-lg text-outline line-through">₹{product.compare_at_price.toFixed(2)}</span>
             )}
             <span className="rounded-md bg-secondary-container px-2 py-1 text-caption font-semibold text-primary">
               {product.stock > 0 ? 'In Stock' : 'Out of Stock'}
@@ -235,7 +235,7 @@ export default function PDPClient({ product, relatedProducts }: PDPClientProps) 
 
             <p className="flex items-center justify-center gap-2 text-center text-sm text-on-surface-variant">
               <span className="material-symbols-outlined text-[16px]">local_shipping</span>
-              Free shipping on orders over $50
+              Free shipping on orders over ₹500
             </p>
           </div>
 
@@ -260,7 +260,7 @@ export default function PDPClient({ product, relatedProducts }: PDPClientProps) 
 
             <AccordionItem icon="local_shipping" title="Shipping & Returns">
               <p className="text-base leading-relaxed text-on-surface-variant">
-                Free carbon-neutral shipping on orders over $40. Try it risk-free for 30 days.
+                Free carbon-neutral shipping on orders over ₹500. Try it risk-free for 30 days.
                 If you don&apos;t love it, returns are on us.
               </p>
             </AccordionItem>
@@ -304,7 +304,7 @@ export default function PDPClient({ product, relatedProducts }: PDPClientProps) 
         >
           <span>Add to Cart</span>
           <span>·</span>
-          <span>${totalPrice}</span>
+          <span>₹{totalPrice}</span>
         </button>
       </div>
     </>

@@ -37,7 +37,7 @@ export default function CheckoutPage() {
   })
 
   const subtotal = getCartTotal()
-  const shipping = subtotal >= 50 ? 0 : 5
+  const shipping = subtotal >= 500 ? 0 : 60
   const total = subtotal + shipping
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -261,7 +261,7 @@ export default function CheckoutPage() {
               disabled={loading}
               className="btn-primary mt-8 w-full py-4 disabled:opacity-50"
             >
-              {loading ? 'Processing…' : `Place Order — $${total.toFixed(2)}`}
+              {loading ? 'Processing…' : `Place Order — ₹${total.toFixed(2)}`}
             </button>
             <p className="mt-3 flex items-center justify-center gap-2 text-center text-xs text-on-surface-variant">
               <span className="material-symbols-outlined text-[16px]">lock</span>
@@ -280,7 +280,7 @@ export default function CheckoutPage() {
                     <p className="font-medium text-on-surface">{item.product.name}</p>
                     <p className="text-on-surface-variant">{item.selectedScent ?? 'Standard'} · Qty: {item.quantity}</p>
                   </div>
-                  <p className="font-medium">${(item.product.price * item.quantity).toFixed(2)}</p>
+                  <p className="font-medium">₹{(item.product.price * item.quantity).toFixed(2)}</p>
                 </div>
               ))}
             </div>
@@ -288,15 +288,15 @@ export default function CheckoutPage() {
             <div className="mt-6 space-y-2 border-t border-outline-variant pt-4 text-sm">
               <div className="flex justify-between">
                 <span>Subtotal</span>
-                <span>${subtotal.toFixed(2)}</span>
+                <span>₹{subtotal.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
                 <span>Shipping</span>
-                <span>{shipping === 0 ? 'Free' : `$${shipping.toFixed(2)}`}</span>
+                <span>{shipping === 0 ? 'Free' : `₹${shipping.toFixed(2)}`}</span>
               </div>
               <div className="mt-2 flex justify-between border-t border-outline-variant pt-2 text-lg font-bold">
                 <span>Total</span>
-                <span>${total.toFixed(2)}</span>
+                <span>₹{total.toFixed(2)}</span>
               </div>
             </div>
 

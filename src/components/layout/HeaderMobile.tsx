@@ -47,7 +47,9 @@ export function HeaderMobile({}: HeaderMobileProps) {
           <Link href="/cart" aria-label="Cart" className="relative -mr-2 flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full bg-primary p-2 text-white shadow-primary-glow">
             <span className="material-symbols-outlined text-2xl">shopping_cart</span>
             {mounted && cartCount > 0 && (
-              <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-sale-red" />
+              <span className="absolute -top-1 -right-1 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-sale-red px-1 text-[10px] font-bold text-white shadow-sm">
+                {cartCount}
+              </span>
             )}
           </Link>
         </div>

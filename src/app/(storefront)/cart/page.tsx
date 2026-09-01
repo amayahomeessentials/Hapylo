@@ -47,7 +47,7 @@ export default function CartPage() {
   }
 
   const subtotal = getCartTotal()
-  const shipping = subtotal >= 50 ? 0 : 5
+  const shipping = subtotal >= 500 ? 0 : 60
   const discountRate = promoApplied ? PROMO_CODES[promoApplied].discount : 0
   const discount = subtotal * discountRate
   const total = subtotal + shipping - discount
@@ -139,22 +139,22 @@ export default function CartPage() {
                 <div className="mb-6 flex flex-col gap-2 font-body text-body-md text-on-surface-variant">
                   <div className="flex justify-between">
                     <span>Subtotal</span>
-                    <span className="text-on-surface">${subtotal.toFixed(2)}</span>
+                    <span className="text-on-surface">₹{subtotal.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Shipping</span>
-                    <span className="text-on-surface">{shipping === 0 ? 'Free' : `$${shipping.toFixed(2)}`}</span>
+                    <span className="text-on-surface">{shipping === 0 ? 'Free' : `₹${shipping.toFixed(2)}`}</span>
                   </div>
                   {promoApplied && (
                     <div className="flex justify-between text-accent">
                       <span>Discount ({promoApplied})</span>
-                      <span>-${discount.toFixed(2)}</span>
+                      <span>-₹{discount.toFixed(2)}</span>
                     </div>
                   )}
                 </div>
                 <div className="flex items-end justify-between border-t border-outline-variant pt-4">
                   <span className="font-label text-label-md text-on-surface">Total</span>
-                  <span className="font-display text-headline-lg-mobile text-primary">${total.toFixed(2)}</span>
+                  <span className="font-display text-headline-lg-mobile text-primary">₹{total.toFixed(2)}</span>
                 </div>
               </div>
             </>
@@ -205,7 +205,7 @@ function CartItemRow({ item, onUpdateQty, onRemove }: {
           </button>
         </div>
         <div className="w-20 text-right">
-          <span className="font-display text-lg font-bold text-on-surface">${(item.product.price * item.quantity).toFixed(2)}</span>
+          <span className="font-display text-lg font-bold text-on-surface">₹{(item.product.price * item.quantity).toFixed(2)}</span>
         </div>
         <button
           onClick={onRemove}
@@ -240,7 +240,7 @@ function MobileCartItem({ item, onUpdateQty, onRemove }: {
           </button>
         </div>
         <div className="mt-2 flex items-end justify-between">
-          <span className="font-display text-h4 text-primary">${(item.product.price * item.quantity).toFixed(2)}</span>
+          <span className="font-display text-h4 text-primary">₹{(item.product.price * item.quantity).toFixed(2)}</span>
           <div className="flex items-center rounded-md border border-outline-variant bg-surface-container-low px-2 py-1">
             <button onClick={() => onUpdateQty(-1)} className="flex items-center justify-center rounded-md p-1 text-on-surface-variant hover:bg-outline-variant/20">
               <span className="material-symbols-outlined text-[16px]">remove</span>
@@ -276,16 +276,16 @@ function OrderSummary({ subtotal, shipping, discount, total, promoCode, setPromo
       <div className="mb-6 space-y-4 border-b border-outline-variant pb-6">
         <div className="flex justify-between text-base text-on-surface-variant">
           <span>Subtotal</span>
-          <span className="text-on-surface">${subtotal.toFixed(2)}</span>
+          <span className="text-on-surface">₹{subtotal.toFixed(2)}</span>
         </div>
         <div className="flex justify-between text-base text-on-surface-variant">
           <span>Shipping</span>
-          <span className="text-on-surface">{shipping === 0 ? 'Free' : `$${shipping.toFixed(2)}`}</span>
+          <span className="text-on-surface">{shipping === 0 ? 'Free' : `₹${shipping.toFixed(2)}`}</span>
         </div>
         {promoApplied && (
           <div className="flex justify-between text-base font-medium text-accent">
             <span>Discount ({promoApplied})</span>
-            <span>-${discount.toFixed(2)}</span>
+            <span>-₹{discount.toFixed(2)}</span>
           </div>
         )}
       </div>
@@ -311,7 +311,7 @@ function OrderSummary({ subtotal, shipping, discount, total, promoCode, setPromo
 
       <div className="mb-8 flex justify-between text-xl font-bold text-on-surface">
         <span>Total</span>
-        <span>${total.toFixed(2)}</span>
+        <span>₹{total.toFixed(2)}</span>
       </div>
       <button
         onClick={() => router.push('/checkout')}
