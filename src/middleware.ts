@@ -58,6 +58,11 @@ export async function middleware(request: NextRequest) {
     if (request.nextUrl.pathname.startsWith('/account') && !user) {
       return NextResponse.redirect(new URL('/login', request.url))
     }
+  } else {
+    // If Supabase is not configured, block access to protected routes to prevent bypass
+    if (request.nextUrl.pathname.startsWith('/admin') || request.nextUrl.pathname.startsWith('/account')) {
+      return NextResponse.redirect(new URL('/', request.url))
+    }
   }
 
   // Forward the pathname so server layouts can determine the active nav item

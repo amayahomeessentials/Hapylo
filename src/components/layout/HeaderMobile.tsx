@@ -10,7 +10,7 @@ interface HeaderMobileProps {
 }
 
 export function HeaderMobile({}: HeaderMobileProps) {
-  const getCartCount = useCart(state => state.getCartCount)
+  const items = useCart(state => state.items)
   const [mounted, setMounted] = useState(false)
   const [drawerOpen, setDrawerOpen] = useState(false)
 
@@ -18,7 +18,7 @@ export function HeaderMobile({}: HeaderMobileProps) {
     setMounted(true)
   }, [])
 
-  const cartCount = getCartCount()
+  const cartCount = items.reduce((count, item) => count + item.quantity, 0)
   return (
     <>
       <header className="sticky top-0 z-50 flex w-full items-center justify-between border-b border-outline-variant bg-surface/95 px-6 py-3 shadow-sm backdrop-blur-xl md:hidden">

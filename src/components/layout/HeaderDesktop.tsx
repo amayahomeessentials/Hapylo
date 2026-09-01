@@ -17,7 +17,7 @@ interface HeaderDesktopProps {
 
 export function HeaderDesktop({ activeHref = '/' }: HeaderDesktopProps) {
   const router = useRouter()
-  const getCartCount = useCart(state => state.getCartCount)
+  const items = useCart(state => state.items)
   const [mounted, setMounted] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
 
@@ -25,7 +25,7 @@ export function HeaderDesktop({ activeHref = '/' }: HeaderDesktopProps) {
     setMounted(true)
   }, [])
 
-  const cartCount = getCartCount()
+  const cartCount = items.reduce((count, item) => count + item.quantity, 0)
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()

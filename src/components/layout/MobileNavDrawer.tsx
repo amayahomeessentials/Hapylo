@@ -18,8 +18,8 @@ interface MobileNavDrawerProps {
 }
 
 export function MobileNavDrawer({ open, onClose }: MobileNavDrawerProps) {
-  const getCartCount = useCart(state => state.getCartCount)
-  const cartCount = getCartCount()
+  const items = useCart(state => state.items)
+  const cartCount = items.reduce((count, item) => count + item.quantity, 0)
 
   // Lock body scroll while drawer is open
   useEffect(() => {
