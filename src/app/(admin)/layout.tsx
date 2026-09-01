@@ -5,6 +5,8 @@ import { usePathname, useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 
+// ─── Navigation config ────────────────────────────────────────────────────────
+
 const NAV_SECTIONS = [
   {
     label: 'Overview',
@@ -16,6 +18,7 @@ const NAV_SECTIONS = [
     label: 'Catalogue',
     items: [
       { href: '/admin/products', label: 'Products', icon: 'inventory_2', exact: false },
+      { href: '/admin/categories', label: 'Categories', icon: 'category', exact: false },
     ],
   },
   {
@@ -25,6 +28,66 @@ const NAV_SECTIONS = [
     ],
   },
 ]
+
+// ─── Breadcrumb helper ────────────────────────────────────────────────────────
+
+const CRUMB_MAP: Record<string, string> = {
+  '/admin': 'Dashboard',
+  '/admin/products': 'Products',
+  '/admin/products/new': 'New Product',
+  '/admin/categories': 'Categories',
+  '/admin/orders': 'Orders',
+}
+
+function Breadcrumb({ pathname }: { pathname: string }) {
+  // Build crumb trail: Dashboard > Section > Page
+  const segments: { label: string; href: string }[] = []
+
+  // Always start with Dashboard (unless we're already there)
+  if (pathname !== '/admin') {
+    segments.push({ label: 'Dashboard', href: '/admin' })
+  }
+
+  // Section label from known map
+  const known = CRUMB_MAP[pathname]
+  if (known && pathname !== '/admin') {
+    segments.push({ label: known, href: pathname })
+  } else if (!known && pathname !== '/admin') {
+    // Dynamic routes: /admin/products/[id], /admin/orders/[id]
+    if (pathname.startsWith('/admin/products/')) {
+      segments.push({ label: 'Products', href: '/admin/products' })
+      segments.push({ label: 'Edit Product', href: pathname })
+    } else if (pathname.startsWith('/admin/orders/')) {
+      segments.push({ label: 'Orders', href: '/admin/orders' })
+      segments.push({ label: 'Order Detail', href: pathname })
+    } else {
+      // Fallback: capitalise last segment
+      const last = pathname.split('/').pop() ?? ''
+      segments.push({ label: last.charAt(0).toUpperCase() + last.slice(1), href: pathname })
+    }
+  }
+
+  if (segments.length === 0) return null
+
+  return (
+    <nav aria-label="Breadcrumb" className="hidden items-center gap-1 text-xs text-on-surface-variant md:flex">
+      {segments.map((crumb, i) => (
+        <span key={crumb.href} className="flex items-center gap-1">
+          {i > 0 && <span className="material-symbols-outlined text-[14px] opacity-40">chevron_right</span>}
+          {i === segments.length - 1 ? (
+            <span className="font-semibold text-on-surface">{crumb.label}</span>
+          ) : (
+            <Link href={crumb.href} className="hover:text-primary hover:underline">
+              {crumb.label}
+            </Link>
+          )}
+        </span>
+      ))}
+    </nav>
+  )
+}
+
+// ─── Nav item ─────────────────────────────────────────────────────────────────
 
 function NavItem({
   href,
@@ -53,18 +116,20 @@ function NavItem({
       }`}
     >
       <span
-        className={`material-symbols-outlined text-[20px] transition-colors ${isActive ? 'text-white' : 'text-white/50 group-hover:text-white'}`}
+        className={`material-symbols-outlined text-[20px] transition-colors ${
+          isActive ? 'text-white' : 'text-white/50 group-hover:text-white'
+        }`}
         style={{ fontVariationSettings: isActive ? "'FILL' 1" : "'FILL' 0" }}
       >
         {icon}
       </span>
       {label}
-      {isActive && (
-        <span className="ml-auto h-1.5 w-1.5 rounded-full bg-white/60" />
-      )}
+      {isActive && <span className="ml-auto h-1.5 w-1.5 rounded-full bg-white/60" />}
     </Link>
   )
 }
+
+// ─── Sidebar ──────────────────────────────────────────────────────────────────
 
 function Sidebar({ pathname, onClose }: { pathname: string; onClose?: () => void }) {
   const router = useRouter()
@@ -78,13 +143,15 @@ function Sidebar({ pathname, onClose }: { pathname: string; onClose?: () => void
   return (
     <div className="flex h-full flex-col bg-primary">
       {/* Logo */}
-      <div className="flex h-16 shrink-0 items-center justify-between px-5 border-b border-white/10">
+      <div className="flex h-16 shrink-0 items-center justify-between border-b border-white/10 px-5">
         <Link
           href="/admin"
           onClick={onClose}
           className="flex items-center gap-2 font-display text-xl font-extrabold tracking-[-0.05em] text-white"
         >
-          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-white/20 text-xs tracking-normal text-white">H</span>
+          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-white/20 text-xs tracking-normal text-white">
+            H
+          </span>
           Hapylo
         </Link>
         <span className="rounded-full bg-white/15 px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-widest text-white/70">
@@ -93,20 +160,15 @@ function Sidebar({ pathname, onClose }: { pathname: string; onClose?: () => void
       </div>
 
       {/* Nav sections */}
-      <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-5">
+      <nav className="flex-1 space-y-5 overflow-y-auto px-3 py-4">
         {NAV_SECTIONS.map(section => (
           <div key={section.label}>
-            <p className="mb-1.5 px-3 text-[9px] font-extrabold tracking-[0.16em] uppercase text-white/35">
+            <p className="mb-1.5 px-3 text-[9px] font-extrabold uppercase tracking-[0.16em] text-white/35">
               {section.label}
             </p>
             <div className="space-y-0.5">
               {section.items.map(item => (
-                <NavItem
-                  key={item.href}
-                  {...item}
-                  pathname={pathname}
-                  onClose={onClose}
-                />
+                <NavItem key={item.href} {...item} pathname={pathname} onClose={onClose} />
               ))}
             </div>
           </div>
@@ -114,7 +176,7 @@ function Sidebar({ pathname, onClose }: { pathname: string; onClose?: () => void
       </nav>
 
       {/* Bottom actions */}
-      <div className="shrink-0 border-t border-white/10 p-3 space-y-1">
+      <div className="shrink-0 space-y-1 border-t border-white/10 p-3">
         <Link
           href="/"
           onClick={onClose}
@@ -135,6 +197,8 @@ function Sidebar({ pathname, onClose }: { pathname: string; onClose?: () => void
   )
 }
 
+// ─── Layout ───────────────────────────────────────────────────────────────────
+
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -149,20 +213,20 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </aside>
 
       {/* ── Mobile top bar ── */}
-      <div className="sticky top-0 z-40 flex h-14 items-center justify-between bg-primary px-4 shadow-sm md:hidden">
+      <div className="sticky top-0 z-40 flex h-14 items-center gap-3 bg-primary px-4 shadow-sm md:hidden">
         <button
           onClick={() => setMobileOpen(true)}
           aria-label="Open menu"
-          className="flex h-10 w-10 items-center justify-center rounded-xl text-white/80 hover:bg-white/15 hover:text-white"
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-white/80 hover:bg-white/15 hover:text-white"
         >
           <span className="material-symbols-outlined">menu</span>
         </button>
-        <Link href="/admin" className="font-display text-lg font-extrabold tracking-tight text-white">
+        <Link href="/admin" className="flex-1 font-display text-lg font-extrabold tracking-tight text-white">
           Hapylo Admin
         </Link>
         <Link
           href="/"
-          className="flex h-10 w-10 items-center justify-center rounded-xl text-white/70 hover:bg-white/15 hover:text-white"
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-white/70 hover:bg-white/15 hover:text-white"
           aria-label="View Storefront"
         >
           <span className="material-symbols-outlined text-[20px]">open_in_new</span>
@@ -176,10 +240,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm md:hidden"
             onClick={() => setMobileOpen(false)}
           />
-          <aside className="fixed top-0 left-0 z-50 flex h-full w-64 flex-col shadow-2xl md:hidden">
+          <aside className="fixed left-0 top-0 z-50 flex h-full w-64 flex-col shadow-2xl md:hidden">
             <button
               onClick={() => setMobileOpen(false)}
-              className="absolute top-4 right-4 z-10 flex h-8 w-8 items-center justify-center rounded-lg bg-white/15 text-white hover:bg-white/25"
+              className="absolute right-4 top-4 z-10 flex h-8 w-8 items-center justify-center rounded-lg bg-white/15 text-white hover:bg-white/25"
               aria-label="Close menu"
             >
               <span className="material-symbols-outlined text-[20px]">close</span>
@@ -191,7 +255,19 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
       {/* ── Main content ── */}
       <main className="flex-1 overflow-x-hidden">
-        <div className="p-6 md:p-8">{children}</div>
+        {/* Desktop breadcrumb bar */}
+        <div className="hidden border-b border-outline-variant bg-surface px-8 py-3 md:flex md:items-center md:justify-between">
+          <Breadcrumb pathname={pathname} />
+          <Link
+            href="/"
+            target="_blank"
+            className="flex items-center gap-1.5 text-xs text-on-surface-variant transition-colors hover:text-primary"
+          >
+            <span className="material-symbols-outlined text-[14px]">open_in_new</span>
+            View storefront
+          </Link>
+        </div>
+        <div className="p-4 md:p-8">{children}</div>
       </main>
     </div>
   )

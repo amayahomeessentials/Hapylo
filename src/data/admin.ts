@@ -386,3 +386,221 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     })),
   }
 }
+
+// ─── Low stock products ───────────────────────────────────────────────────────
+
+export interface LowStockProduct {
+  id: string
+  name: string
+  stock: number
+  images: string[]
+}
+
+/** Products with stock at or below the threshold (default 5). */
+export async function getLowStockProducts(threshold = 5): Promise<LowStockProduct[]> {
+  const supabase = createAdminClient()
+  const { data, error } = await supabase
+    .from('products')
+    .select('id, name, stock, images')
+    .lte('stock', threshold)
+    .eq('is_active', true)
+    .order('stock', { ascending: true })
+    .limit(10)
+
+  if (error) {
+    console.error('getLowStockProducts error:', error)
+    return []
+  }
+  return (data ?? []) as LowStockProduct[]
+}
+
+// ─── Revenue chart data (last 7 days) ────────────────────────────────────────
+
+export interface DailyRevenue {
+  date: string   // 'YYYY-MM-DD'
+  revenue: number
+  orders: number
+}
+
+/** Revenue and order counts for the last N days (default 7). */
+export async function getRevenueChart(days = 7): Promise<DailyRevenue[]> {
+  const supabase = createAdminClient()
+
+  const since = new Date()
+  since.setDate(since.getDate() - (days - 1))
+  since.setHours(0, 0, 0, 0)
+
+  const { data, error } = await supabase
+    .from('orders')
+    .select('total, created_at')
+    .gte('created_at', since.toISOString())
+    .order('created_at', { ascending: true })
+
+  if (error) {
+    console.error('getRevenueChart error:', error)
+    return []
+  }
+
+  // Build a map keyed by date string
+  const map: Record<string, { revenue: number; orders: number }> = {}
+
+  // Pre-fill every day with zeros
+  for (let i = 0; i < days; i++) {
+    const d = new Date(since)
+    d.setDate(since.getDate() + i)
+    const key = d.toISOString().slice(0, 10)
+    map[key] = { revenue: 0, orders: 0 }
+  }
+
+  ;(data ?? []).forEach((o: { total: number; created_at: string }) => {
+    const key = o.created_at.slice(0, 10)
+    if (map[key]) {
+      map[key].revenue += o.total ?? 0
+      map[key].orders += 1
+    }
+  })
+
+  return Object.entries(map).map(([date, v]) => ({ date, ...v }))
+}
+
+// ─── Top selling products ─────────────────────────────────────────────────────
+
+export interface TopProduct {
+  product_id: string
+  product_name: string
+  product_image: string | null
+  total_sold: number
+  revenue: number
+}
+
+/** Top N products by units sold. */
+export async function getTopProducts(limit = 5): Promise<TopProduct[]> {
+  const supabase = createAdminClient()
+
+  const { data, error } = await supabase
+    .from('order_items')
+    .select('quantity, unit_price, product_id, product:products(id, name, images)')
+    .limit(500)
+
+  if (error) {
+    console.error('getTopProducts error:', error)
+    return []
+  }
+
+  const map: Record<string, TopProduct> = {}
+
+  ;(data ?? []).forEach((item: {
+    quantity: number
+    unit_price: number
+    product_id: string
+    product: { id: string; name: string; images: string[] }[] | { id: string; name: string; images: string[] } | null
+  }) => {
+    const prod = Array.isArray(item.product) ? item.product[0] : item.product
+    if (!prod) return
+    if (!map[item.product_id]) {
+      map[item.product_id] = {
+        product_id: item.product_id,
+        product_name: prod.name,
+        product_image: prod.images?.[0] ?? null,
+        total_sold: 0,
+        revenue: 0,
+      }
+    }
+    map[item.product_id].total_sold += item.quantity
+    map[item.product_id].revenue += item.quantity * item.unit_price
+  })
+
+  return Object.values(map)
+    .sort((a, b) => b.total_sold - a.total_sold)
+    .slice(0, limit)
+}
+
+// ─── Order status breakdown ───────────────────────────────────────────────────
+
+export interface StatusBreakdown {
+  status: string
+  count: number
+}
+
+export async function getOrderStatusBreakdown(): Promise<StatusBreakdown[]> {
+  const supabase = createAdminClient()
+  const { data, error } = await supabase
+    .from('orders')
+    .select('status')
+
+  if (error) {
+    console.error('getOrderStatusBreakdown error:', error)
+    return []
+  }
+
+  const map: Record<string, number> = {}
+  ;(data ?? []).forEach((o: { status: string }) => {
+    map[o.status] = (map[o.status] ?? 0) + 1
+  })
+
+  return Object.entries(map)
+    .map(([status, count]) => ({ status, count }))
+    .sort((a, b) => b.count - a.count)
+}
+
+// ─── Categories ── CRUD ───────────────────────────────────────────────────────
+
+export async function createCategory(name: string, slug: string): Promise<{ id: string; name: string; slug: string } | null> {
+  const supabase = createAdminClient()
+  const { data, error } = await supabase
+    .from('categories')
+    .insert({ name, slug })
+    .select()
+    .single()
+
+  if (error) {
+    console.error('createCategory error:', error)
+    return null
+  }
+  return data
+}
+
+export async function updateCategory(id: string, name: string, slug: string): Promise<boolean> {
+  const supabase = createAdminClient()
+  const { error } = await supabase
+    .from('categories')
+    .update({ name, slug })
+    .eq('id', id)
+
+  if (error) {
+    console.error('updateCategory error:', error)
+    return false
+  }
+  return true
+}
+
+export async function deleteCategory(id: string): Promise<boolean> {
+  const supabase = createAdminClient()
+  const { error } = await supabase
+    .from('categories')
+    .delete()
+    .eq('id', id)
+
+  if (error) {
+    console.error('deleteCategory error:', error)
+    return false
+  }
+  return true
+}
+
+export async function getCategoryProductCount(): Promise<Record<string, number>> {
+  const supabase = createAdminClient()
+  const { data, error } = await supabase
+    .from('products')
+    .select('category_id')
+
+  if (error) return {}
+
+  const map: Record<string, number> = {}
+  ;(data ?? []).forEach((p: { category_id: string | null }) => {
+    if (p.category_id) {
+      map[p.category_id] = (map[p.category_id] ?? 0) + 1
+    }
+  })
+  return map
+}

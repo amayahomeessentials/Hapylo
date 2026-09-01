@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { getOrderByIdAdmin, updateOrderStatus } from '@/data/admin'
 import { OrderStatus } from '@/types/database.types'
+import { requireAdmin } from '@/lib/supabase/requireAdmin'
 
 export const dynamic = 'force-dynamic'
 
@@ -8,6 +9,9 @@ export async function GET(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const denied = await requireAdmin()
+  if (denied) return denied
+
   const { id } = await params
   try {
     const order = await getOrderByIdAdmin(id)
@@ -25,12 +29,17 @@ export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const denied = await requireAdmin()
+  if (denied) return denied
+
   const { id } = await params
   try {
     const body = await request.json()
     const { status } = body as { status: OrderStatus }
 
-    const validStatuses: OrderStatus[] = ['created', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled']
+    const validStatuses: OrderStatus[] = [
+      'created', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled',
+    ]
     if (!validStatuses.includes(status)) {
       return NextResponse.json({ error: 'Invalid status' }, { status: 400 })
     }

@@ -1,17 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
 import { upsertProduct, ProductUpsertPayload } from '@/data/admin'
-
-async function requireAuth() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  return user
-}
+import { requireAdmin } from '@/lib/supabase/requireAdmin'
 
 export async function POST(req: NextRequest) {
-  if (!(await requireAuth())) {
-    return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
-  }
+  const denied = await requireAdmin()
+  if (denied) return denied
 
   const body: ProductUpsertPayload = await req.json()
   const product = await upsertProduct(body)
@@ -22,9 +15,8 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PUT(req: NextRequest) {
-  if (!(await requireAuth())) {
-    return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
-  }
+  const denied = await requireAdmin()
+  if (denied) return denied
 
   const body: ProductUpsertPayload = await req.json()
   if (!body.id) {

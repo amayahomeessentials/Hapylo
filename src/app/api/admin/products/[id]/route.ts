@@ -1,17 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
 import { deleteProduct } from '@/data/admin'
+import { requireAdmin } from '@/lib/supabase/requireAdmin'
 
 export async function DELETE(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  // Auth guard — must be signed in
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) {
-    return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
-  }
+  const denied = await requireAdmin()
+  if (denied) return denied
 
   const { id } = await params
   const ok = await deleteProduct(id)
