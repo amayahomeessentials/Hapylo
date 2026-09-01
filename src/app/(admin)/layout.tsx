@@ -5,7 +5,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 
-// ─── Navigation config ────────────────────────────────────────────────────────
+// ─── Navigation ───────────────────────────────────────────────────────────────
 
 const NAV_SECTIONS = [
   {
@@ -29,7 +29,7 @@ const NAV_SECTIONS = [
   },
 ]
 
-// ─── Breadcrumb helper ────────────────────────────────────────────────────────
+// ─── Breadcrumb ───────────────────────────────────────────────────────────────
 
 const CRUMB_MAP: Record<string, string> = {
   '/admin': 'Dashboard',
@@ -40,20 +40,14 @@ const CRUMB_MAP: Record<string, string> = {
 }
 
 function Breadcrumb({ pathname }: { pathname: string }) {
-  // Build crumb trail: Dashboard > Section > Page
   const segments: { label: string; href: string }[] = []
-
-  // Always start with Dashboard (unless we're already there)
   if (pathname !== '/admin') {
     segments.push({ label: 'Dashboard', href: '/admin' })
   }
-
-  // Section label from known map
   const known = CRUMB_MAP[pathname]
   if (known && pathname !== '/admin') {
     segments.push({ label: known, href: pathname })
   } else if (!known && pathname !== '/admin') {
-    // Dynamic routes: /admin/products/[id], /admin/orders/[id]
     if (pathname.startsWith('/admin/products/')) {
       segments.push({ label: 'Products', href: '/admin/products' })
       segments.push({ label: 'Edit Product', href: pathname })
@@ -61,23 +55,22 @@ function Breadcrumb({ pathname }: { pathname: string }) {
       segments.push({ label: 'Orders', href: '/admin/orders' })
       segments.push({ label: 'Order Detail', href: pathname })
     } else {
-      // Fallback: capitalise last segment
       const last = pathname.split('/').pop() ?? ''
       segments.push({ label: last.charAt(0).toUpperCase() + last.slice(1), href: pathname })
     }
   }
-
   if (segments.length === 0) return null
-
   return (
-    <nav aria-label="Breadcrumb" className="hidden items-center gap-1 text-xs text-on-surface-variant md:flex">
+    <nav aria-label="Breadcrumb" className="hidden items-center gap-1.5 md:flex">
       {segments.map((crumb, i) => (
-        <span key={crumb.href} className="flex items-center gap-1">
-          {i > 0 && <span className="material-symbols-outlined text-[14px] opacity-40">chevron_right</span>}
+        <span key={crumb.href} className="flex items-center gap-1.5">
+          {i > 0 && (
+            <span className="material-symbols-outlined text-[13px] text-outline">chevron_right</span>
+          )}
           {i === segments.length - 1 ? (
-            <span className="font-semibold text-on-surface">{crumb.label}</span>
+            <span className="text-sm font-bold text-on-surface">{crumb.label}</span>
           ) : (
-            <Link href={crumb.href} className="hover:text-primary hover:underline">
+            <Link href={crumb.href} className="text-sm text-on-surface-variant hover:text-primary">
               {crumb.label}
             </Link>
           )}
@@ -90,41 +83,37 @@ function Breadcrumb({ pathname }: { pathname: string }) {
 // ─── Nav item ─────────────────────────────────────────────────────────────────
 
 function NavItem({
-  href,
-  label,
-  icon,
-  exact,
-  pathname,
-  onClose,
+  href, label, icon, exact, pathname, onClose,
 }: {
-  href: string
-  label: string
-  icon: string
-  exact: boolean
-  pathname: string
-  onClose?: () => void
+  href: string; label: string; icon: string; exact: boolean; pathname: string; onClose?: () => void
 }) {
   const isActive = exact ? pathname === href : pathname.startsWith(href)
   return (
     <Link
       href={href}
       onClick={onClose}
-      className={`group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition-all duration-150 ${
+      className={`group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition-all duration-150 ${
         isActive
-          ? 'bg-white/15 text-white'
-          : 'text-white/60 hover:bg-white/10 hover:text-white'
+          ? 'bg-white/[0.12] text-white'
+          : 'text-white/50 hover:bg-white/[0.07] hover:text-white/90'
       }`}
     >
+      {/* Active left accent bar */}
+      {isActive && (
+        <span className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-full bg-white/70" />
+      )}
       <span
-        className={`material-symbols-outlined text-[20px] transition-colors ${
-          isActive ? 'text-white' : 'text-white/50 group-hover:text-white'
+        className={`material-symbols-outlined text-[22px] transition-all ${
+          isActive ? 'text-white' : 'text-white/40 group-hover:text-white/80'
         }`}
-        style={{ fontVariationSettings: isActive ? "'FILL' 1" : "'FILL' 0" }}
+        style={{ fontVariationSettings: isActive ? "'FILL' 1, 'wght' 600" : "'FILL' 0, 'wght' 400" }}
       >
         {icon}
       </span>
-      {label}
-      {isActive && <span className="ml-auto h-1.5 w-1.5 rounded-full bg-white/60" />}
+      <span className="flex-1">{label}</span>
+      {isActive && (
+        <span className="h-1.5 w-1.5 rounded-full bg-white/50" />
+      )}
     </Link>
   )
 }
@@ -141,29 +130,32 @@ function Sidebar({ pathname, onClose }: { pathname: string; onClose?: () => void
   }
 
   return (
-    <div className="flex h-full flex-col bg-primary">
+    <div className="flex h-full flex-col" style={{ background: '#0C2729' }}>
       {/* Logo */}
-      <div className="flex h-16 shrink-0 items-center justify-between border-b border-white/10 px-5">
+      <div className="flex h-[68px] shrink-0 items-center gap-3 px-5" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
         <Link
           href="/admin"
           onClick={onClose}
-          className="flex items-center gap-2 font-display text-xl font-extrabold tracking-[-0.05em] text-white"
+          className="flex items-center gap-2.5"
         >
-          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-white/20 text-xs tracking-normal text-white">
+          <span
+            className="flex h-9 w-9 items-center justify-center rounded-xl text-sm font-black tracking-tight text-white"
+            style={{ background: 'rgba(255,255,255,0.15)' }}
+          >
             H
           </span>
-          Hapylo
+          <div>
+            <p className="font-display text-[15px] font-extrabold leading-none text-white tracking-tight">Hapylo</p>
+            <p className="mt-0.5 text-[9px] font-bold uppercase tracking-[0.18em] text-white/40">Admin</p>
+          </div>
         </Link>
-        <span className="rounded-full bg-white/15 px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-widest text-white/70">
-          Admin
-        </span>
       </div>
 
-      {/* Nav sections */}
-      <nav className="flex-1 space-y-5 overflow-y-auto px-3 py-4">
+      {/* Nav */}
+      <nav className="flex-1 overflow-y-auto px-3 py-5 space-y-6">
         {NAV_SECTIONS.map(section => (
           <div key={section.label}>
-            <p className="mb-1.5 px-3 text-[9px] font-extrabold uppercase tracking-[0.16em] text-white/35">
+            <p className="mb-2 px-3 text-[9px] font-extrabold uppercase tracking-[0.18em]" style={{ color: 'rgba(255,255,255,0.25)' }}>
               {section.label}
             </p>
             <div className="space-y-0.5">
@@ -175,21 +167,27 @@ function Sidebar({ pathname, onClose }: { pathname: string; onClose?: () => void
         ))}
       </nav>
 
-      {/* Bottom actions */}
-      <div className="shrink-0 space-y-1 border-t border-white/10 p-3">
+      {/* Bottom */}
+      <div className="shrink-0 px-3 py-3 space-y-0.5" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
         <Link
           href="/"
           onClick={onClose}
-          className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-white/60 transition-all hover:bg-white/10 hover:text-white"
+          className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition-all"
+          style={{ color: 'rgba(255,255,255,0.45)' }}
+          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.9)'; (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.07)' }}
+          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.45)'; (e.currentTarget as HTMLElement).style.background = '' }}
         >
-          <span className="material-symbols-outlined text-[20px] text-white/40">open_in_new</span>
+          <span className="material-symbols-outlined text-[20px]" style={{ color: 'rgba(255,255,255,0.3)' }}>open_in_new</span>
           View Storefront
         </Link>
         <button
           onClick={handleSignOut}
-          className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-white/60 transition-all hover:bg-red-500/20 hover:text-red-300"
+          className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition-all"
+          style={{ color: 'rgba(255,255,255,0.45)' }}
+          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#fca5a5'; (e.currentTarget as HTMLElement).style.background = 'rgba(239,68,68,0.12)' }}
+          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.45)'; (e.currentTarget as HTMLElement).style.background = '' }}
         >
-          <span className="material-symbols-outlined text-[20px] text-white/40">logout</span>
+          <span className="material-symbols-outlined text-[20px]" style={{ color: 'rgba(255,255,255,0.3)' }}>logout</span>
           Sign Out
         </button>
       </div>
@@ -204,46 +202,70 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [mobileOpen, setMobileOpen] = useState(false)
 
   return (
-    <div className="flex min-h-screen bg-surface-container-low md:flex-row">
-      {/* ── Desktop sidebar ── */}
-      <aside className="hidden w-60 shrink-0 md:flex md:flex-col">
+    <div className="flex min-h-screen" style={{ background: '#EEF0EC' }}>
+      {/* Desktop sidebar */}
+      <aside className="hidden w-64 shrink-0 md:flex md:flex-col">
         <div className="sticky top-0 h-screen">
           <Sidebar pathname={pathname} />
         </div>
       </aside>
 
-      {/* ── Mobile top bar ── */}
-      <div className="sticky top-0 z-40 flex h-14 items-center gap-3 bg-primary px-4 shadow-sm md:hidden">
-        <button
-          onClick={() => setMobileOpen(true)}
-          aria-label="Open menu"
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-white/80 hover:bg-white/15 hover:text-white"
-        >
-          <span className="material-symbols-outlined">menu</span>
-        </button>
-        <Link href="/admin" className="flex-1 font-display text-lg font-extrabold tracking-tight text-white">
-          Hapylo Admin
-        </Link>
-        <Link
-          href="/"
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-white/70 hover:bg-white/15 hover:text-white"
-          aria-label="View Storefront"
-        >
-          <span className="material-symbols-outlined text-[20px]">open_in_new</span>
-        </Link>
+      {/* Right column */}
+      <div className="flex min-w-0 flex-1 flex-col">
+        {/* Mobile top bar */}
+        <div className="sticky top-0 z-40 flex h-16 items-center gap-3 px-4 shadow-md md:hidden" style={{ background: '#0C2729' }}>
+          <button
+            onClick={() => setMobileOpen(true)}
+            aria-label="Open menu"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-colors"
+            style={{ color: 'rgba(255,255,255,0.7)' }}
+          >
+            <span className="material-symbols-outlined text-[24px]">menu</span>
+          </button>
+          <Link href="/admin" className="flex-1 font-display text-[17px] font-extrabold tracking-tight text-white">
+            Hapylo Admin
+          </Link>
+          <Link
+            href="/"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-colors"
+            style={{ color: 'rgba(255,255,255,0.6)' }}
+            aria-label="View Storefront"
+          >
+            <span className="material-symbols-outlined text-[20px]">open_in_new</span>
+          </Link>
+        </div>
+
+        {/* Desktop header bar */}
+        <div className="hidden h-14 items-center justify-between border-b bg-white px-8 md:flex" style={{ borderColor: '#E0E4E0' }}>
+          <Breadcrumb pathname={pathname} />
+          <Link
+            href="/"
+            target="_blank"
+            className="flex items-center gap-1.5 text-xs font-medium text-on-surface-variant transition-colors hover:text-primary"
+          >
+            <span className="material-symbols-outlined text-[13px]">open_in_new</span>
+            Storefront
+          </Link>
+        </div>
+
+        {/* Content */}
+        <main className="flex-1 overflow-x-hidden">
+          <div className="p-4 md:p-8">{children}</div>
+        </main>
       </div>
 
-      {/* ── Mobile drawer ── */}
+      {/* Mobile drawer */}
       {mobileOpen && (
         <>
           <div
-            className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm md:hidden"
+            className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm md:hidden"
             onClick={() => setMobileOpen(false)}
           />
           <aside className="fixed left-0 top-0 z-50 flex h-full w-64 flex-col shadow-2xl md:hidden">
             <button
               onClick={() => setMobileOpen(false)}
-              className="absolute right-4 top-4 z-10 flex h-8 w-8 items-center justify-center rounded-lg bg-white/15 text-white hover:bg-white/25"
+              className="absolute right-4 top-4 z-10 flex h-8 w-8 items-center justify-center rounded-lg text-white/70 hover:text-white transition-colors"
+              style={{ background: 'rgba(255,255,255,0.1)' }}
               aria-label="Close menu"
             >
               <span className="material-symbols-outlined text-[20px]">close</span>
@@ -252,23 +274,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </aside>
         </>
       )}
-
-      {/* ── Main content ── */}
-      <main className="flex-1 overflow-x-hidden">
-        {/* Desktop breadcrumb bar */}
-        <div className="hidden border-b border-outline-variant bg-surface px-8 py-3 md:flex md:items-center md:justify-between">
-          <Breadcrumb pathname={pathname} />
-          <Link
-            href="/"
-            target="_blank"
-            className="flex items-center gap-1.5 text-xs text-on-surface-variant transition-colors hover:text-primary"
-          >
-            <span className="material-symbols-outlined text-[14px]">open_in_new</span>
-            View storefront
-          </Link>
-        </div>
-        <div className="p-4 md:p-8">{children}</div>
-      </main>
     </div>
   )
 }

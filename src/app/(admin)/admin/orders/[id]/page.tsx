@@ -8,12 +8,12 @@ import { OrderStatus } from '@/types/database.types'
 import { AdminOrderDetail } from '@/data/admin'
 
 const STATUS_COLOURS: Record<string, string> = {
-  delivered:  'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200',
-  shipped:    'bg-sky-50 text-sky-700 ring-1 ring-sky-200',
-  processing: 'bg-amber-50 text-amber-700 ring-1 ring-amber-200',
-  confirmed:  'bg-primary-fixed text-on-primary-fixed ring-1 ring-primary-fixed-dim',
-  created:    'bg-surface-container text-on-surface-variant ring-1 ring-outline-variant',
-  cancelled:  'bg-error-container text-on-error-container ring-1 ring-error/20',
+  delivered:  'bg-emerald-100 text-emerald-800',
+  shipped:    'bg-sky-100 text-sky-800',
+  processing: 'bg-amber-100 text-amber-800',
+  confirmed:  'bg-primary-fixed text-on-primary-fixed',
+  created:    'bg-surface-container text-on-surface-variant',
+  cancelled:  'bg-error-container text-on-error-container',
 }
 
 const STATUS_ICONS: Record<string, string> = {
@@ -38,7 +38,7 @@ function OrderTimeline({ status }: { status: string }) {
   const isCancelled = status === 'cancelled'
 
   return (
-    <div className="surface-card p-6">
+    <div className="rounded-2xl bg-white p-6" style={{ border: "1px solid #E0E4E0", boxShadow: "0 1px 3px rgba(12,46,50,0.05), 0 4px 12px rgba(12,46,50,0.05)" }}>
       <h2 className="mb-4 font-semibold text-on-surface">Order Timeline</h2>
       {isCancelled ? (
         <div className="flex items-center gap-3 rounded-xl bg-error-container px-4 py-3 text-sm text-on-error-container">
@@ -118,7 +118,7 @@ function InternalNotes({ orderId }: { orderId: string }) {
   }
 
   return (
-    <div className="surface-card p-6">
+    <div className="rounded-2xl bg-white p-6" style={{ border: "1px solid #E0E4E0", boxShadow: "0 1px 3px rgba(12,46,50,0.05), 0 4px 12px rgba(12,46,50,0.05)" }}>
       <div className="flex items-center justify-between mb-3">
         <h2 className="font-semibold text-on-surface">Internal Notes</h2>
         <span className="rounded-full bg-surface-container px-2 py-0.5 text-[10px] font-semibold text-on-surface-variant">
@@ -254,10 +254,15 @@ export default function AdminOrderDetailPage() {
 
   const statusChanged = selectedStatus !== order.status
 
+  const CARD = {
+    border: '1px solid #E0E4E0',
+    boxShadow: '0 1px 3px rgba(12,46,50,0.05), 0 4px 12px rgba(12,46,50,0.05)',
+  }
+
   return (
     <div>
       {/* ── Back + heading ── */}
-      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+      <div className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <button
             onClick={() => router.push('/admin/orders')}
@@ -266,7 +271,7 @@ export default function AdminOrderDetailPage() {
             <span className="material-symbols-outlined text-[18px]">arrow_back</span>
             Back to Orders
           </button>
-          <h1 className="font-display text-xl font-extrabold text-on-surface md:text-2xl">
+          <h1 className="font-display text-2xl font-extrabold tracking-tight text-on-surface md:text-3xl">
             Order {order.order_number}
           </h1>
           <p className="mt-1 text-sm text-on-surface-variant">
@@ -282,7 +287,7 @@ export default function AdminOrderDetailPage() {
           <select
             value={selectedStatus}
             onChange={e => setSelectedStatus(e.target.value as OrderStatus)}
-            className="rounded-xl border border-outline-variant bg-surface px-4 py-2.5 text-sm font-semibold text-on-surface focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+            className="rounded-xl border border-outline-variant bg-white px-4 py-2.5 text-sm font-semibold text-on-surface focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
           >
             {ALL_STATUSES.map(s => (
               <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>
@@ -308,11 +313,11 @@ export default function AdminOrderDetailPage() {
         {/* ── Left: items + payment ── */}
         <div className="space-y-5 lg:col-span-2">
           {/* Items */}
-          <div className="surface-card overflow-hidden">
-            <div className="border-b border-outline-variant px-6 py-4">
-              <h2 className="font-semibold text-on-surface">Items ({order.items.length})</h2>
+          <div className="overflow-hidden rounded-2xl bg-white" style={CARD}>
+            <div className="px-6 py-4" style={{ borderBottom: '1px solid #E8ECE8' }}>
+              <h2 className="font-bold text-on-surface">Items ({order.items.length})</h2>
             </div>
-            <div className="divide-y divide-outline-variant">
+            <div className="divide-y" style={{ borderColor: '#F0F2EC' }}>
               {order.items.map(item => (
                 <div key={item.id} className="flex items-center gap-4 px-4 py-4 sm:px-6">
                   <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl border border-outline-variant bg-surface-container-low">
@@ -349,7 +354,7 @@ export default function AdminOrderDetailPage() {
 
           {/* Payment info */}
           {(order.razorpay_order_id || order.razorpay_payment_id) && (
-            <div className="surface-card p-6">
+            <div className="rounded-2xl bg-white p-6" style={{ border: "1px solid #E0E4E0", boxShadow: "0 1px 3px rgba(12,46,50,0.05), 0 4px 12px rgba(12,46,50,0.05)" }}>
               <h2 className="mb-4 font-semibold text-on-surface">Payment Info</h2>
               <div className="space-y-2 text-sm">
                 {order.razorpay_order_id && (
@@ -375,7 +380,7 @@ export default function AdminOrderDetailPage() {
         {/* ── Right: summary + customer + address ── */}
         <div className="space-y-5">
           {/* Order summary */}
-          <div className="surface-card p-6">
+          <div className="rounded-2xl bg-white p-6" style={{ border: "1px solid #E0E4E0", boxShadow: "0 1px 3px rgba(12,46,50,0.05), 0 4px 12px rgba(12,46,50,0.05)" }}>
             <h2 className="mb-4 font-semibold text-on-surface">Order Summary</h2>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
@@ -424,7 +429,7 @@ export default function AdminOrderDetailPage() {
           </div>
 
           {/* Customer */}
-          <div className="surface-card p-6">
+          <div className="rounded-2xl bg-white p-6" style={{ border: "1px solid #E0E4E0", boxShadow: "0 1px 3px rgba(12,46,50,0.05), 0 4px 12px rgba(12,46,50,0.05)" }}>
             <h2 className="mb-4 font-semibold text-on-surface">Customer</h2>
             {order.customer_name || order.customer_email ? (
               <div className="flex items-center gap-3">
@@ -447,7 +452,7 @@ export default function AdminOrderDetailPage() {
 
           {/* Shipping address */}
           {order.address && (
-            <div className="surface-card p-6">
+            <div className="rounded-2xl bg-white p-6" style={{ border: "1px solid #E0E4E0", boxShadow: "0 1px 3px rgba(12,46,50,0.05), 0 4px 12px rgba(12,46,50,0.05)" }}>
               <h2 className="mb-4 font-semibold text-on-surface">Shipping Address</h2>
               <address className="not-italic space-y-0.5 text-sm text-on-surface-variant">
                 <p className="text-on-surface">{order.address.line1}</p>
