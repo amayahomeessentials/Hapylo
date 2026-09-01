@@ -93,6 +93,10 @@ export function ProductForm({ product, categories }: ProductFormProps) {
         if (res.ok) {
           const data = await res.json()
           uploaded.push(data.secure_url as string)
+        } else {
+          const errorData = await res.json().catch(() => ({}))
+          console.error('Cloudinary upload error:', errorData)
+          setUploadError(`Failed to upload image: ${errorData.error?.message || res.statusText}`)
         }
       })
     )
