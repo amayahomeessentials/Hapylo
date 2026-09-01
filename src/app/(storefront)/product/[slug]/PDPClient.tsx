@@ -7,6 +7,8 @@ import { Product } from '@/types/database.types'
 import { RatingStars } from '@/components/ui/RatingStars'
 import { Badge } from '@/components/ui/Badge'
 import { ProductGrid } from '@/components/product/ProductGrid'
+import { useCart } from '@/hooks/useCart'
+import { useRouter } from 'next/navigation'
 
 interface PDPClientProps {
   product: Product
@@ -17,6 +19,18 @@ export default function PDPClient({ product, relatedProducts }: PDPClientProps) 
   const [selectedImage, setSelectedImage] = useState(0)
   const [selectedScent, setSelectedScent] = useState(product.scents?.[0]?.name ?? '')
   const [quantity, setQuantity] = useState(1)
+
+  const addItem = useCart(state => state.addItem)
+  const router = useRouter()
+
+  const handleAddToCart = () => {
+    addItem(product, quantity, selectedScent)
+  }
+
+  const handleBuyNow = () => {
+    addItem(product, quantity, selectedScent)
+    router.push('/checkout')
+  }
 
   const discount = product.compare_at_price
     ? Math.round((1 - product.price / product.compare_at_price) * 100)
@@ -175,11 +189,17 @@ export default function PDPClient({ product, relatedProducts }: PDPClientProps) 
             </div>
 
             <div className="flex flex-col gap-4 sm:flex-row">
-              <button className="btn-primary flex flex-1 items-center justify-center gap-2 py-4 text-base">
+              <button 
+                onClick={handleAddToCart}
+                className="btn-primary flex flex-1 items-center justify-center gap-2 py-4 text-base"
+              >
                 <span className="material-symbols-outlined">shopping_cart</span>
                 Add to Cart
               </button>
-              <button className="btn-secondary flex-1 py-4 text-base">
+              <button 
+                onClick={handleBuyNow}
+                className="btn-secondary flex-1 py-4 text-base"
+              >
                 Buy Now
               </button>
             </div>
@@ -249,7 +269,10 @@ export default function PDPClient({ product, relatedProducts }: PDPClientProps) 
             <span className="material-symbols-outlined text-[20px]">add</span>
           </button>
         </div>
-        <button className="btn-primary ml-4 flex flex-grow items-center justify-center gap-2 px-6 py-3 text-sm">
+        <button 
+          onClick={handleAddToCart}
+          className="btn-primary ml-4 flex flex-grow items-center justify-center gap-2 px-6 py-3 text-sm"
+        >
           <span>Add to Cart</span>
           <span>·</span>
           <span>${totalPrice}</span>

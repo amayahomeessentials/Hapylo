@@ -1,4 +1,8 @@
+'use client'
+
 import Link from 'next/link'
+import { useState, useEffect } from 'react'
+import { useCart } from '@/hooks/useCart'
 
 const navLinks = [
   { href: '/', label: 'Home' },
@@ -11,7 +15,15 @@ interface HeaderDesktopProps {
   cartCount?: number
 }
 
-export function HeaderDesktop({ activeHref = '/', cartCount = 0 }: HeaderDesktopProps) {
+export function HeaderDesktop({ activeHref = '/' }: HeaderDesktopProps) {
+  const getCartCount = useCart(state => state.getCartCount)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  const cartCount = getCartCount()
   return (
     <header className="sticky top-0 z-50 hidden border-b border-outline-variant bg-surface/95 backdrop-blur-xl transition-all duration-300 md:block">
       <nav className="page-wrap flex h-[5.5rem] items-center justify-between">
@@ -51,7 +63,7 @@ export function HeaderDesktop({ activeHref = '/', cartCount = 0 }: HeaderDesktop
           </Link>
           <Link href="/cart" aria-label="Cart" className="relative rounded-full bg-primary p-2.5 text-white shadow-primary-glow transition-colors hover:bg-primary-hover">
             <span className="material-symbols-outlined">shopping_cart</span>
-            {cartCount > 0 && (
+            {mounted && cartCount > 0 && (
               <span className="absolute -top-0.5 -right-0.5 rounded-full bg-sale-red px-1.5 py-0.5 text-[10px] font-bold leading-none text-white">
                 {cartCount}
               </span>

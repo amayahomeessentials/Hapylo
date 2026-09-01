@@ -3,30 +3,25 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { CartItem } from '@/types/database.types'
+import { useCart } from '@/hooks/useCart'
 
 export default function CartPage() {
-  const [items, setItems] = useState<CartItem[]>([])
+  const router = useRouter()
+  const { items, updateQuantity, removeItem, getCartTotal } = useCart()
   const [promoCode, setPromoCode] = useState('')
   const [promoApplied, setPromoApplied] = useState(false)
 
-  const updateQty = (productId: string, delta: number) => {
-    setItems(prev =>
-      prev
-        .map(item =>
-          item.product.id === productId
-            ? { ...item, quantity: Math.max(0, item.quantity + delta) }
-            : item
-        )
-        .filter(item => item.quantity > 0)
-    )
+  const updateQty = (productId: string, delta: number, currentQty: number, selectedScent?: string) => {
+    updateQuantity(productId, currentQty + delta, selectedScent)
   }
 
-  const removeItem = (productId: string) => {
-    setItems(prev => prev.filter(item => item.product.id !== productId))
+  const removeCartItem = (productId: string, selectedScent?: string) => {
+    removeItem(productId, selectedScent)
   }
 
-  const subtotal = items.reduce((sum, item) => sum + item.product.price * item.quantity, 0)
+  const subtotal = getCartTotal()
   const shipping = subtotal >= 50 ? 0 : 5
   const discount = promoApplied ? subtotal * 0.1 : 0
   const total = subtotal + shipping - discount
@@ -43,10 +38,10 @@ export default function CartPage() {
             <div className="col-span-8 space-y-6">
               {items.map(item => (
                 <CartItemRow
-                  key={item.product.id}
+                  key={`${item.product.id}-${item.selectedScent}`}
                   item={item}
-                  onUpdateQty={updateQty}
-                  onRemove={removeItem}
+                  onUpdateQty={(delta) => updateQty(item.product.id, delta, item.quantity, item.selectedScent)}
+                  onRemove={() => removeCartItem(item.product.id, item.selectedScent)}
                 />
               ))}
             </div>
@@ -83,10 +78,10 @@ export default function CartPage() {
             <>
               {items.map(item => (
                 <MobileCartItem
-                  key={item.product.id}
+                  key={`${item.product.id}-${item.selectedScent}`}
                   item={item}
-                  onUpdateQty={updateQty}
-                  onRemove={removeItem}
+                  onUpdateQty={(delta) => updateQty(item.product.id, delta, item.quantity, item.selectedScent)}
+                  onRemove={() => removeCartItem(item.product.id, item.selectedScent)}
                 />
               ))}
 
@@ -136,7 +131,10 @@ export default function CartPage() {
 
         <div className="fixed bottom-16 left-0 z-40 flex w-full flex-col gap-2 border-t border-outline-variant bg-surface/90 px-6 py-4 pb-safe backdrop-blur-lg">
           <p className="mb-1 text-center font-label text-caption text-on-surface-variant">Taxes calculated at checkout</p>
-          <button className="btn-primary flex w-full items-center justify-center gap-2 py-4 text-sm">
+          <button 
+            onClick={() => router.push('/checkout')}
+            className="btn-primary flex w-full items-center justify-center gap-2 py-4 text-sm"
+          >
             <span>Proceed to Checkout</span>
             <span className="material-symbols-outlined text-[20px]">arrow_forward</span>
           </button>
@@ -148,8 +146,8 @@ export default function CartPage() {
 
 function CartItemRow({ item, onUpdateQty, onRemove }: {
   item: CartItem
-  onUpdateQty: (id: string, delta: number) => void
-  onRemove: (id: string) => void
+  onUpdateQty: (delta: number) => void
+  onRemove: () => void
 }) {
   return (
     <div className="flex flex-col items-start gap-6 rounded-md border border-outline-variant bg-surface p-6 shadow-card sm:flex-row sm:items-center">
@@ -164,11 +162,11 @@ function CartItemRow({ item, onUpdateQty, onRemove }: {
       </div>
       <div className="flex items-center gap-6">
         <div className="flex items-center overflow-hidden rounded-md border border-outline-variant bg-surface">
-          <button onClick={() => onUpdateQty(item.product.id, -1)} className="px-3 py-2 text-on-surface-variant transition-colors hover:bg-secondary-container">
+          <button onClick={() => onUpdateQty(-1)} className="px-3 py-2 text-on-surface-variant transition-colors hover:bg-secondary-container">
             <span className="material-symbols-outlined text-sm">remove</span>
           </button>
           <span className="min-w-[32px] px-2 text-center text-sm font-semibold">{item.quantity}</span>
-          <button onClick={() => onUpdateQty(item.product.id, 1)} className="px-3 py-2 text-on-surface-variant transition-colors hover:bg-secondary-container">
+          <button onClick={() => onUpdateQty(1)} className="px-3 py-2 text-on-surface-variant transition-colors hover:bg-secondary-container">
             <span className="material-symbols-outlined text-sm">add</span>
           </button>
         </div>
@@ -176,7 +174,7 @@ function CartItemRow({ item, onUpdateQty, onRemove }: {
           <span className="font-display text-lg font-bold text-on-surface">${(item.product.price * item.quantity).toFixed(2)}</span>
         </div>
         <button
-          onClick={() => onRemove(item.product.id)}
+          onClick={onRemove}
           className="rounded-md p-2 text-outline transition-colors hover:bg-error-container hover:text-sale-red"
         >
           <span className="material-symbols-outlined">delete</span>
@@ -188,8 +186,8 @@ function CartItemRow({ item, onUpdateQty, onRemove }: {
 
 function MobileCartItem({ item, onUpdateQty, onRemove }: {
   item: CartItem
-  onUpdateQty: (id: string, delta: number) => void
-  onRemove: (id: string) => void
+  onUpdateQty: (delta: number) => void
+  onRemove: () => void
 }) {
   return (
     <div className="flex gap-4 rounded-md border border-outline-variant bg-surface p-4 shadow-card">
@@ -200,20 +198,20 @@ function MobileCartItem({ item, onUpdateQty, onRemove }: {
         <div className="flex items-start justify-between">
           <div>
             <h3 className="mb-1 font-label text-label-md text-on-surface">{item.product.name}</h3>
-            <p className="font-label text-caption text-outline">{item.product.scents?.[0]?.name ?? 'Standard'} · In Stock</p>
+            <p className="font-label text-caption text-outline">{item.selectedScent ?? 'Standard'} · In Stock</p>
           </div>
-          <button onClick={() => onRemove(item.product.id)} className="-mt-1 -mr-1 rounded-md p-1 text-outline-variant transition-colors hover:text-error-vivid">
+          <button onClick={onRemove} className="-mt-1 -mr-1 rounded-md p-1 text-outline-variant transition-colors hover:text-error-vivid">
             <span className="material-symbols-outlined text-[20px]">delete</span>
           </button>
         </div>
         <div className="mt-2 flex items-end justify-between">
           <span className="font-display text-h4 text-primary">${(item.product.price * item.quantity).toFixed(2)}</span>
           <div className="flex items-center rounded-md border border-outline-variant bg-surface-container-low px-2 py-1">
-            <button onClick={() => onUpdateQty(item.product.id, -1)} className="flex items-center justify-center rounded-md p-1 text-on-surface-variant hover:bg-outline-variant/20">
+            <button onClick={() => onUpdateQty(-1)} className="flex items-center justify-center rounded-md p-1 text-on-surface-variant hover:bg-outline-variant/20">
               <span className="material-symbols-outlined text-[16px]">remove</span>
             </button>
             <span className="w-6 text-center font-label text-label-md text-on-surface">{item.quantity}</span>
-            <button onClick={() => onUpdateQty(item.product.id, 1)} className="flex items-center justify-center rounded-md p-1 text-on-surface-variant hover:bg-outline-variant/20">
+            <button onClick={() => onUpdateQty(1)} className="flex items-center justify-center rounded-md p-1 text-on-surface-variant hover:bg-outline-variant/20">
               <span className="material-symbols-outlined text-[16px]">add</span>
             </button>
           </div>
@@ -233,6 +231,7 @@ function OrderSummary({ subtotal, shipping, discount, total, promoCode, setPromo
   promoApplied: boolean
   onApplyPromo: () => void
 }) {
+  const router = useRouter()
   return (
     <div className="sticky top-28 rounded-md border border-outline-variant bg-surface p-8 shadow-card">
       <p className="mb-3 text-xs font-extrabold tracking-[0.15em] text-accent uppercase">Order details</p>
@@ -274,7 +273,10 @@ function OrderSummary({ subtotal, shipping, discount, total, promoCode, setPromo
         <span>Total</span>
         <span>${total.toFixed(2)}</span>
       </div>
-      <button className="btn-primary w-full py-4">
+      <button 
+        onClick={() => router.push('/checkout')}
+        className="btn-primary w-full py-4"
+      >
         Proceed to Checkout
       </button>
       <p className="mt-4 text-center text-caption text-on-surface-variant">Secure checkout powered by Hapylo.</p>

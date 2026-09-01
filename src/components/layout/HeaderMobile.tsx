@@ -1,10 +1,22 @@
+'use client'
+
 import Link from 'next/link'
+import { useState, useEffect } from 'react'
+import { useCart } from '@/hooks/useCart'
 
 interface HeaderMobileProps {
   cartCount?: number
 }
 
-export function HeaderMobile({ cartCount = 0 }: HeaderMobileProps) {
+export function HeaderMobile({}: HeaderMobileProps) {
+  const getCartCount = useCart(state => state.getCartCount)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  const cartCount = getCartCount()
   return (
     <header className="sticky top-0 z-50 flex w-full items-center justify-between border-b border-outline-variant bg-surface/95 px-6 py-3 shadow-sm backdrop-blur-xl md:hidden">
       <div className="flex-none">
@@ -25,7 +37,7 @@ export function HeaderMobile({ cartCount = 0 }: HeaderMobileProps) {
         </Link>
         <Link href="/cart" aria-label="Cart" className="relative -mr-2 flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full bg-primary p-2 text-white shadow-primary-glow">
           <span className="material-symbols-outlined text-2xl">shopping_cart</span>
-          {cartCount > 0 && (
+          {mounted && cartCount > 0 && (
             <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-sale-red" />
           )}
         </Link>
