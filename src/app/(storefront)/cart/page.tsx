@@ -7,11 +7,19 @@ import { useRouter } from 'next/navigation'
 import { CartItem } from '@/types/database.types'
 import { useCart } from '@/hooks/useCart'
 
+// Valid promo codes — in production these would be stored in the DB
+const PROMO_CODES: Record<string, { discount: number; label: string }> = {
+  HAPYLO10: { discount: 0.10, label: 'HAPYLO10' },
+  CLEAN20: { discount: 0.20, label: 'CLEAN20' },
+  WELCOME15: { discount: 0.15, label: 'WELCOME15' },
+}
+
 export default function CartPage() {
   const router = useRouter()
   const { items, updateQuantity, removeItem, getCartTotal } = useCart()
   const [promoCode, setPromoCode] = useState('')
-  const [promoApplied, setPromoApplied] = useState(false)
+  const [promoApplied, setPromoApplied] = useState<string | null>(null)
+  const [promoError, setPromoError] = useState('')
 
   const updateQty = (productId: string, delta: number, currentQty: number, selectedScent?: string) => {
     updateQuantity(productId, currentQty + delta, selectedScent)
@@ -21,9 +29,27 @@ export default function CartPage() {
     removeItem(productId, selectedScent)
   }
 
+  const handleApplyPromo = () => {
+    setPromoError('')
+    const code = promoCode.trim().toUpperCase()
+    if (PROMO_CODES[code]) {
+      setPromoApplied(code)
+    } else {
+      setPromoApplied(null)
+      setPromoError('Invalid promo code. Try HAPYLO10.')
+    }
+  }
+
+  const handleRemovePromo = () => {
+    setPromoApplied(null)
+    setPromoCode('')
+    setPromoError('')
+  }
+
   const subtotal = getCartTotal()
   const shipping = subtotal >= 50 ? 0 : 5
-  const discount = promoApplied ? subtotal * 0.1 : 0
+  const discountRate = promoApplied ? PROMO_CODES[promoApplied].discount : 0
+  const discount = subtotal * discountRate
   const total = subtotal + shipping - discount
 
   return (
@@ -55,7 +81,9 @@ export default function CartPage() {
                 promoCode={promoCode}
                 setPromoCode={setPromoCode}
                 promoApplied={promoApplied}
-                onApplyPromo={() => setPromoApplied(p => !p)}
+                promoError={promoError}
+                onApplyPromo={handleApplyPromo}
+                onRemovePromo={handleRemovePromo}
               />
             </div>
           </div>
@@ -85,21 +113,25 @@ export default function CartPage() {
                 />
               ))}
 
-              <div className="relative mt-2 flex w-full items-center">
-                <span className="material-symbols-outlined absolute left-3 text-[20px] text-outline">sell</span>
-                <input
-                  type="text"
-                  value={promoCode}
-                  onChange={e => setPromoCode(e.target.value)}
-                  placeholder="Promo code"
-                  className="w-full rounded-md border border-outline-variant bg-surface py-3 pr-24 pl-10 font-body text-body-md outline-none transition-all placeholder:text-outline-variant focus:border-primary focus:ring-2 focus:ring-accent/30"
-                />
-                <button
-                  onClick={() => promoCode && setPromoApplied(p => !p)}
-                  className="absolute right-2 px-2 py-1 font-label text-label-md text-primary transition-colors hover:text-primary-hover"
-                >
-                  {promoApplied ? 'Remove' : 'Apply'}
-                </button>
+              <div className="space-y-2">
+                <div className="relative flex w-full items-center">
+                  <span className="material-symbols-outlined absolute left-3 text-[20px] text-outline">sell</span>
+                  <input
+                    type="text"
+                    value={promoCode}
+                    onChange={e => { setPromoCode(e.target.value); setPromoError('') }}
+                    placeholder="Promo code"
+                    className="w-full rounded-md border border-outline-variant bg-surface py-3 pr-24 pl-10 font-body text-body-md outline-none transition-all placeholder:text-outline-variant focus:border-primary focus:ring-2 focus:ring-accent/30"
+                  />
+                  <button
+                    onClick={promoApplied ? handleRemovePromo : handleApplyPromo}
+                    className="absolute right-2 px-2 py-1 font-label text-label-md text-primary transition-colors hover:text-primary-hover"
+                  >
+                    {promoApplied ? 'Remove' : 'Apply'}
+                  </button>
+                </div>
+                {promoError && <p className="text-xs text-sale-red">{promoError}</p>}
+                {promoApplied && <p className="text-xs text-primary">✓ Code applied — {Math.round(discountRate * 100)}% off!</p>}
               </div>
 
               <div className="mt-4 rounded-md border border-outline-variant bg-surface p-6 shadow-card">
@@ -115,7 +147,7 @@ export default function CartPage() {
                   </div>
                   {promoApplied && (
                     <div className="flex justify-between text-accent">
-                      <span>Discount (HAPYLO10)</span>
+                      <span>Discount ({promoApplied})</span>
                       <span>-${discount.toFixed(2)}</span>
                     </div>
                   )}
@@ -131,9 +163,10 @@ export default function CartPage() {
 
         <div className="fixed right-0 bottom-0 left-0 z-40 flex w-full flex-col gap-2 border-t border-outline-variant bg-surface/90 px-6 py-4 pb-safe backdrop-blur-lg">
           <p className="mb-1 text-center font-label text-caption text-on-surface-variant">Taxes calculated at checkout</p>
-          <button 
+          <button
             onClick={() => router.push('/checkout')}
-            className="btn-primary flex w-full items-center justify-center gap-2 py-4 text-sm"
+            disabled={items.length === 0}
+            className="btn-primary flex w-full items-center justify-center gap-2 py-4 text-sm disabled:opacity-50"
           >
             <span>Proceed to Checkout</span>
             <span className="material-symbols-outlined text-[20px]">arrow_forward</span>
@@ -157,7 +190,8 @@ function CartItemRow({ item, onUpdateQty, onRemove }: {
       <div className="flex-grow">
         <h3 className="mb-1 font-display text-h5 text-on-surface">{item.product.name}</h3>
         <p className="text-sm text-on-surface-variant">
-          {item.product.scents?.[0]?.name ?? 'Standard'}, {item.product.stock > 0 ? 'In Stock' : 'Limited'}
+          {/* Fixed: show selectedScent, not the first product scent */}
+          {item.selectedScent ?? 'Standard'} · {item.product.stock > 0 ? 'In Stock' : 'Limited'}
         </p>
       </div>
       <div className="flex items-center gap-6">
@@ -198,6 +232,7 @@ function MobileCartItem({ item, onUpdateQty, onRemove }: {
         <div className="flex items-start justify-between">
           <div>
             <h3 className="mb-1 font-label text-label-md text-on-surface">{item.product.name}</h3>
+            {/* Fixed: show selectedScent */}
             <p className="font-label text-caption text-outline">{item.selectedScent ?? 'Standard'} · In Stock</p>
           </div>
           <button onClick={onRemove} className="-mt-1 -mr-1 rounded-md p-1 text-outline-variant transition-colors hover:text-error-vivid">
@@ -221,15 +256,17 @@ function MobileCartItem({ item, onUpdateQty, onRemove }: {
   )
 }
 
-function OrderSummary({ subtotal, shipping, discount, total, promoCode, setPromoCode, promoApplied, onApplyPromo }: {
+function OrderSummary({ subtotal, shipping, discount, total, promoCode, setPromoCode, promoApplied, promoError, onApplyPromo, onRemovePromo }: {
   subtotal: number
   shipping: number
   discount: number
   total: number
   promoCode: string
   setPromoCode: (v: string) => void
-  promoApplied: boolean
+  promoApplied: string | null
+  promoError: string
   onApplyPromo: () => void
+  onRemovePromo: () => void
 }) {
   const router = useRouter()
   return (
@@ -247,33 +284,36 @@ function OrderSummary({ subtotal, shipping, discount, total, promoCode, setPromo
         </div>
         {promoApplied && (
           <div className="flex justify-between text-base font-medium text-accent">
-            <span>Discount (HAPYLO10)</span>
+            <span>Discount ({promoApplied})</span>
             <span>-${discount.toFixed(2)}</span>
           </div>
         )}
       </div>
 
-      <div className="mb-8 flex gap-2">
+      <div className="mb-2 flex gap-2">
         <input
           type="text"
           value={promoCode}
           onChange={e => setPromoCode(e.target.value)}
           placeholder="Promo code"
-          className="flex-1 rounded-md border border-outline-variant bg-surface-container-low px-4 py-3 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+          disabled={!!promoApplied}
+          className="flex-1 rounded-md border border-outline-variant bg-surface-container-low px-4 py-3 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary disabled:opacity-60"
         />
         <button
-          onClick={onApplyPromo}
+          onClick={promoApplied ? onRemovePromo : onApplyPromo}
           className="btn-secondary px-4 py-3 text-sm"
         >
           {promoApplied ? 'Remove' : 'Apply'}
         </button>
       </div>
+      {promoError && <p className="mb-4 text-xs text-sale-red">{promoError}</p>}
+      {promoApplied && <p className="mb-4 text-xs text-primary">✓ Code applied!</p>}
 
       <div className="mb-8 flex justify-between text-xl font-bold text-on-surface">
         <span>Total</span>
         <span>${total.toFixed(2)}</span>
       </div>
-      <button 
+      <button
         onClick={() => router.push('/checkout')}
         className="btn-primary w-full py-4"
       >

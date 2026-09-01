@@ -27,6 +27,14 @@ export const metadata: Metadata = {
     title: 'Hapylo — Refreshingly Clean',
     description: 'Plant-powered home care products. Ethically made.',
     type: 'website',
+    images: [
+      {
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'Hapylo — Refreshingly Clean Home Care',
+      },
+    ],
   },
 }
 

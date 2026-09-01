@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { useCart } from '@/hooks/useCart'
 
 const navLinks = [
@@ -12,18 +13,27 @@ const navLinks = [
 
 interface HeaderDesktopProps {
   activeHref?: string
-  cartCount?: number
 }
 
 export function HeaderDesktop({ activeHref = '/' }: HeaderDesktopProps) {
+  const router = useRouter()
   const getCartCount = useCart(state => state.getCartCount)
   const [mounted, setMounted] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
 
   useEffect(() => {
     setMounted(true)
   }, [])
 
   const cartCount = getCartCount()
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (searchQuery.trim()) {
+      router.push(`/shop?q=${encodeURIComponent(searchQuery.trim())}`)
+    }
+  }
+
   return (
     <header className="sticky top-0 z-50 hidden flex-col border-b border-outline-variant bg-surface/95 backdrop-blur-xl transition-all duration-300 md:flex">
       <nav className="page-wrap flex h-[4.5rem] items-center justify-between gap-8 py-2">
@@ -32,46 +42,53 @@ export function HeaderDesktop({ activeHref = '/' }: HeaderDesktopProps) {
           <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-sm tracking-normal text-white">H</span>Hapylo
         </Link>
 
-        {/* Center: Large Search Bar (Amazon Style) */}
-        <div className="flex flex-1 items-center justify-center">
+        {/* Center: Search Bar */}
+        <form onSubmit={handleSearch} className="flex flex-1 items-center justify-center">
           <div className="flex w-full max-w-2xl overflow-hidden rounded-md border border-outline-variant bg-white focus-within:border-primary focus-within:ring-1 focus-within:ring-primary shadow-sm">
-            <input 
-              type="text" 
-              placeholder="Search for essentials..." 
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              placeholder="Search for essentials..."
               className="w-full px-4 py-2.5 text-on-surface outline-none"
             />
-            <button className="bg-primary px-6 text-white hover:bg-primary-hover transition-colors flex items-center justify-center">
+            <button
+              type="submit"
+              className="bg-primary px-6 text-white hover:bg-primary-hover transition-colors flex items-center justify-center"
+              aria-label="Search"
+            >
               <span className="material-symbols-outlined text-[20px]">search</span>
             </button>
           </div>
-        </div>
+        </form>
 
         {/* Right: Actions */}
         <div className="flex flex-none items-center gap-2 text-on-surface">
           <Link href="/login" className="flex flex-col justify-center rounded-sm px-3 py-1.5 transition-colors hover:border hover:border-outline hover:bg-secondary-container">
             <span className="text-xs leading-none text-on-surface-variant">Hello, sign in</span>
-            <span className="text-sm font-bold leading-tight">Account & Lists</span>
+            <span className="text-sm font-bold leading-tight">Account &amp; Lists</span>
           </Link>
-          
+
           <Link href="/account/orders" className="flex flex-col justify-center rounded-sm px-3 py-1.5 transition-colors hover:border hover:border-outline hover:bg-secondary-container">
             <span className="text-xs leading-none text-on-surface-variant">Returns</span>
-            <span className="text-sm font-bold leading-tight">& Orders</span>
+            <span className="text-sm font-bold leading-tight">&amp; Orders</span>
           </Link>
 
           <Link href="/cart" className="relative flex items-end gap-1 rounded-sm px-3 py-1.5 transition-colors hover:border hover:border-outline hover:bg-secondary-container">
             <div className="relative flex items-center">
               <span className="material-symbols-outlined text-[32px] leading-none text-primary">shopping_cart</span>
-              {mounted && cartCount >= 0 && (
-                 <span className="absolute -top-1 left-1/2 -translate-x-1/2 font-bold text-sale-red">
-                   {cartCount}
-                 </span>
+              {/* Fixed: only show badge when count > 0 */}
+              {mounted && cartCount > 0 && (
+                <span className="absolute -top-1 left-1/2 -translate-x-1/2 font-bold text-sale-red">
+                  {cartCount}
+                </span>
               )}
             </div>
             <span className="text-sm font-bold leading-tight">Cart</span>
           </Link>
         </div>
       </nav>
-      
+
       {/* Secondary Nav Bar for Links */}
       <div className="bg-surface-container-low border-t border-outline-variant">
         <div className="page-wrap flex items-center gap-6 py-1.5">

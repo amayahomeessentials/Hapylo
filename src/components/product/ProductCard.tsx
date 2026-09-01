@@ -5,16 +5,21 @@ import Link from 'next/link'
 import { useState } from 'react'
 import { Product } from '@/types/database.types'
 import { Badge } from '@/components/ui/Badge'
+import { useCart } from '@/hooks/useCart'
+import { useWishlist } from '@/hooks/useWishlist'
 
 interface ProductCardProps {
   product: Product
+  /** @deprecated onAddToCart is no longer needed — ProductCard uses useCart directly */
   onAddToCart?: (product: Product) => void
   className?: string
 }
 
-export function ProductCard({ product, onAddToCart, className = '' }: ProductCardProps) {
-  const [wishlisted, setWishlisted] = useState(false)
+export function ProductCard({ product, className = '' }: ProductCardProps) {
   const [addedToCart, setAddedToCart] = useState(false)
+  const addItem = useCart((state) => state.addItem)
+  const { toggleItem, isWishlisted } = useWishlist()
+  const wishlisted = isWishlisted(product.id)
 
   const discount = product.compare_at_price
     ? Math.round((1 - product.price / product.compare_at_price) * 100)
@@ -23,7 +28,7 @@ export function ProductCard({ product, onAddToCart, className = '' }: ProductCar
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    onAddToCart?.(product)
+    addItem(product, 1, product.scents?.[0]?.name)
     setAddedToCart(true)
     setTimeout(() => setAddedToCart(false), 1500)
   }
@@ -31,7 +36,7 @@ export function ProductCard({ product, onAddToCart, className = '' }: ProductCar
   const handleWishlist = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    setWishlisted(w => !w)
+    toggleItem(product)
   }
 
   return (

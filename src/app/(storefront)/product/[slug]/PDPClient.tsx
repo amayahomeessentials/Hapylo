@@ -8,6 +8,7 @@ import { RatingStars } from '@/components/ui/RatingStars'
 import { Badge } from '@/components/ui/Badge'
 import { ProductGrid } from '@/components/product/ProductGrid'
 import { useCart } from '@/hooks/useCart'
+import { useWishlist } from '@/hooks/useWishlist'
 import { useRouter } from 'next/navigation'
 
 interface PDPClientProps {
@@ -19,9 +20,23 @@ export default function PDPClient({ product, relatedProducts }: PDPClientProps) 
   const [selectedImage, setSelectedImage] = useState(0)
   const [selectedScent, setSelectedScent] = useState(product.scents?.[0]?.name ?? '')
   const [quantity, setQuantity] = useState(1)
+  const [shareCopied, setShareCopied] = useState(false)
 
   const addItem = useCart(state => state.addItem)
+  const { toggleItem, isWishlisted } = useWishlist()
+  const wishlisted = isWishlisted(product.id)
   const router = useRouter()
+
+  const handleShare = async () => {
+    const url = window.location.href
+    if (navigator.share) {
+      try { await navigator.share({ title: product.name, url }) } catch {}
+    } else {
+      await navigator.clipboard.writeText(url)
+      setShareCopied(true)
+      setTimeout(() => setShareCopied(false), 2000)
+    }
+  }
 
   const handleAddToCart = () => {
     addItem(product, quantity, selectedScent)
@@ -53,11 +68,25 @@ export default function PDPClient({ product, relatedProducts }: PDPClientProps) 
           <span className="material-symbols-outlined">arrow_back</span>
         </Link>
         <div className="pointer-events-auto flex gap-2">
-          <button className="flex h-10 w-10 items-center justify-center rounded-md border border-outline-variant bg-white/80 text-primary shadow-sm backdrop-blur-md">
-            <span className="material-symbols-outlined">share</span>
+          <button
+            onClick={handleShare}
+            title={shareCopied ? 'Link copied!' : 'Share'}
+            className="flex h-10 w-10 items-center justify-center rounded-md border border-outline-variant bg-white/80 text-primary shadow-sm backdrop-blur-md"
+          >
+            <span className="material-symbols-outlined">{shareCopied ? 'check' : 'share'}</span>
           </button>
-          <button className="flex h-10 w-10 items-center justify-center rounded-md border border-outline-variant bg-white/80 text-primary shadow-sm backdrop-blur-md">
-            <span className="material-symbols-outlined">favorite</span>
+          <button
+            onClick={() => toggleItem(product)}
+            aria-label={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
+            className="flex h-10 w-10 items-center justify-center rounded-md border border-outline-variant bg-white/80 shadow-sm backdrop-blur-md"
+          >
+            <span
+              className="material-symbols-outlined"
+              style={{
+                fontVariationSettings: wishlisted ? "'FILL' 1" : "'FILL' 0",
+                color: wishlisted ? '#DC2626' : undefined,
+              }}
+            >favorite</span>
           </button>
         </div>
       </div>
@@ -127,7 +156,7 @@ export default function PDPClient({ product, relatedProducts }: PDPClientProps) 
             </h1>
             {product.scents && (
               <p className="text-lg text-on-surface-variant">
-                {selectedScent} Scent • {product.stock > 0 ? '64 Loads' : 'Out of Stock'}
+                {selectedScent} Scent • {product.stock > 0 ? 'In Stock' : 'Out of Stock'}
               </p>
             )}
           </div>
