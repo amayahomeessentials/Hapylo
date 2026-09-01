@@ -64,9 +64,13 @@ export function HeaderDesktop({ activeHref = '/' }: HeaderDesktopProps) {
 
         {/* Right: Actions */}
         <div className="flex flex-none items-center gap-2 text-on-surface">
-          <Link href="/login" className="flex flex-col justify-center rounded-sm px-3 py-1.5 transition-colors hover:border hover:border-outline hover:bg-secondary-container">
-            <span className="text-xs leading-none text-on-surface-variant">Hello, sign in</span>
-            <span className="text-sm font-bold leading-tight">Account &amp; Lists</span>
+          {/* Sign In — prominent button */}
+          <Link
+            href="/login"
+            className="flex items-center gap-1.5 rounded-lg border border-primary/25 bg-primary/5 px-3.5 py-2 text-sm font-semibold text-primary transition-all hover:bg-primary hover:text-white hover:border-primary"
+          >
+            <span className="material-symbols-outlined text-[18px]">person</span>
+            Sign In
           </Link>
 
           <Link href="/account/orders" className="flex flex-col justify-center rounded-sm px-3 py-1.5 transition-colors hover:border hover:border-outline hover:bg-secondary-container">
@@ -74,12 +78,11 @@ export function HeaderDesktop({ activeHref = '/' }: HeaderDesktopProps) {
             <span className="text-sm font-bold leading-tight">&amp; Orders</span>
           </Link>
 
-          <Link href="/cart" className="relative flex items-end gap-1 rounded-sm px-3 py-1.5 transition-colors hover:border hover:border-outline hover:bg-secondary-container">
+          <Link href="/cart" className="relative flex items-center gap-1.5 rounded-lg bg-primary px-3.5 py-2 text-white transition-colors hover:bg-primary-hover shadow-primary-glow">
             <div className="relative flex items-center">
-              <span className="material-symbols-outlined text-[32px] leading-none text-primary">shopping_cart</span>
-              {/* Fixed: only show badge when count > 0 */}
+              <span className="material-symbols-outlined text-[22px] leading-none">shopping_cart</span>
               {mounted && cartCount > 0 && (
-                <span className="absolute -top-1 left-1/2 -translate-x-1/2 font-bold text-sale-red">
+                <span className="absolute -top-2 -right-3 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-sale-red px-1 text-[10px] font-bold text-white">
                   {cartCount}
                 </span>
               )}

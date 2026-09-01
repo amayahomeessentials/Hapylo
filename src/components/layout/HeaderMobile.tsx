@@ -19,38 +19,68 @@ export function HeaderMobile({}: HeaderMobileProps) {
   }, [])
 
   const cartCount = items.reduce((count, item) => count + item.quantity, 0)
+
   return (
     <>
-      <header className="sticky top-0 z-50 flex w-full items-center justify-between glass-panel px-6 py-3 shadow-sm md:hidden">
-        <div className="flex-none">
+      <header className="sticky top-0 z-50 flex w-full flex-col glass-panel shadow-sm md:hidden">
+        {/* Main header row */}
+        <div className="flex w-full items-center justify-between px-4 py-2.5">
+          {/* Left: Hamburger */}
           <button
             onClick={() => setDrawerOpen(true)}
-            className="-ml-2 flex min-h-[48px] min-w-[48px] items-center justify-center p-2 text-on-surface"
+            className="-ml-1 flex h-10 w-10 items-center justify-center rounded-full text-on-surface transition-colors hover:bg-surface-container"
             aria-label="Open menu"
             aria-expanded={drawerOpen}
             aria-controls="mobile-nav-drawer"
           >
-            <span className="material-symbols-outlined text-2xl">menu</span>
+            <span className="material-symbols-outlined text-[24px]">menu</span>
           </button>
-        </div>
 
-        <div className="absolute left-1/2 -translate-x-1/2">
-          <Link href="/" className="font-display text-2xl font-extrabold tracking-[-0.06em] text-primary transition-colors hover:text-primary-hover">
+          {/* Center: Logo */}
+          <Link
+            href="/"
+            className="font-display text-[1.4rem] font-extrabold tracking-[-0.06em] text-primary"
+          >
+            <span className="inline-flex h-6 w-6 items-center justify-center rounded-md bg-primary text-[11px] tracking-normal text-white mr-1">H</span>
             Hapylo
           </Link>
+
+          {/* Right: Sign In + Cart */}
+          <div className="flex items-center gap-2">
+            {/* Sign In button — compact pill style */}
+            <Link
+              href="/login"
+              className="flex items-center gap-1 rounded-full border border-primary/25 bg-primary/5 px-3 py-1.5 text-xs font-bold text-primary transition-colors hover:bg-primary/10"
+              aria-label="Sign in"
+            >
+              <span className="material-symbols-outlined text-[15px]">person</span>
+              Sign In
+            </Link>
+
+            {/* Cart */}
+            <Link
+              href="/cart"
+              aria-label="Cart"
+              className="relative flex h-9 w-9 items-center justify-center rounded-full bg-primary text-white shadow-primary-glow"
+            >
+              <span className="material-symbols-outlined text-[20px]">shopping_cart</span>
+              {mounted && cartCount > 0 && (
+                <span className="absolute -top-1 -right-1 flex h-4 min-w-[1rem] items-center justify-center rounded-full bg-sale-red px-1 text-[9px] font-bold text-white shadow-sm">
+                  {cartCount}
+                </span>
+              )}
+            </Link>
+          </div>
         </div>
 
-        <div className="flex flex-none gap-1">
-          <Link href="/search" aria-label="Search" className="flex min-h-[48px] min-w-[48px] items-center justify-center p-2 text-on-surface">
-            <span className="material-symbols-outlined text-2xl">search</span>
-          </Link>
-          <Link href="/cart" aria-label="Cart" className="relative -mr-2 flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full bg-primary p-2 text-white shadow-primary-glow">
-            <span className="material-symbols-outlined text-2xl">shopping_cart</span>
-            {mounted && cartCount > 0 && (
-              <span className="absolute -top-1 -right-1 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-sale-red px-1 text-[10px] font-bold text-white shadow-sm">
-                {cartCount}
-              </span>
-            )}
+        {/* Search bar row */}
+        <div className="px-4 pb-2.5">
+          <Link
+            href="/search"
+            className="flex w-full items-center gap-2 rounded-full border border-outline-variant bg-surface-container-low px-4 py-2 text-sm text-on-surface-variant shadow-sm"
+          >
+            <span className="material-symbols-outlined text-[18px] text-on-surface-variant">search</span>
+            Search for essentials...
           </Link>
         </div>
       </header>

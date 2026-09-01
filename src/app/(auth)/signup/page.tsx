@@ -11,6 +11,7 @@ export default function SignupPage() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
@@ -36,34 +37,105 @@ export default function SignupPage() {
     }
   }
 
+  const perks = [
+    { icon: 'package_2', label: 'Track your orders in real-time' },
+    { icon: 'local_shipping', label: 'Free shipping on orders over ₹500' },
+    { icon: 'workspace_premium', label: 'Exclusive member offers & early access' },
+    { icon: 'eco', label: 'Thoughtful products for every home' },
+  ]
+
   return (
-    <section className="min-h-[calc(100dvh-9rem)] bg-background py-10 sm:py-16 lg:py-20">
-      <div className="page-wrap grid items-center gap-10 lg:grid-cols-[1fr_minmax(25rem,30rem)] lg:gap-16">
-        <div className="max-w-xl">
-          <span className="eyebrow text-accent">Join the community</span>
-          <h1 className="section-heading mt-4 text-4xl text-on-surface sm:text-5xl">A cleaner routine, made personal.</h1>
-          <p className="mt-5 max-w-lg text-lg leading-relaxed text-on-surface-variant">Create your Hapylo account for a simpler checkout, order tracking, and first access to new essentials.</p>
-          <div className="mt-8 hidden items-center gap-4 text-sm text-on-surface-variant sm:flex">
-            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary-container text-primary"><span className="material-symbols-outlined">eco</span></span>
-            Thoughtful products for every home
-          </div>
+    <div className="flex min-h-[calc(100dvh-4.5rem)] bg-background">
+
+      {/* ── Left: Brand panel (desktop only) ── */}
+      <div className="relative hidden flex-col justify-between overflow-hidden bg-primary px-12 py-14 lg:flex lg:w-[45%] xl:w-[40%]">
+        {/* Decorative circles */}
+        <div className="absolute -top-24 -right-24 h-72 w-72 rounded-full bg-white/5" />
+        <div className="absolute -left-16 top-1/3 h-56 w-56 rounded-full bg-white/5" />
+        <div className="absolute -bottom-20 right-1/4 h-96 w-96 rounded-full bg-white/5" />
+
+        {/* Logo */}
+        <Link href="/" className="relative flex items-center gap-2.5 font-display text-2xl font-extrabold tracking-[-0.05em] text-white">
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/20 text-base tracking-normal text-white backdrop-blur-sm">H</span>
+          Hapylo
+        </Link>
+
+        {/* Main copy */}
+        <div className="relative">
+          <p className="mb-3 text-[11px] font-extrabold tracking-[0.18em] uppercase text-white/50">
+            Join the community
+          </p>
+          <h1 className="font-display text-4xl font-extrabold leading-tight tracking-tight text-white xl:text-5xl">
+            A cleaner routine,<br />made personal.
+          </h1>
+          <p className="mt-5 max-w-xs text-base leading-relaxed text-white/70">
+            Create your account for a simpler checkout, order tracking, and first access to new essentials.
+          </p>
+
+          {/* Perks list */}
+          <ul className="mt-9 space-y-4">
+            {perks.map(perk => (
+              <li key={perk.icon} className="flex items-center gap-3.5">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/15 backdrop-blur-sm">
+                  <span className="material-symbols-outlined text-[18px] text-white" style={{ fontVariationSettings: "'FILL' 1" }}>
+                    {perk.icon}
+                  </span>
+                </span>
+                <span className="text-[14px] font-medium text-white/80">{perk.label}</span>
+              </li>
+            ))}
+          </ul>
         </div>
 
-        <div className="surface-card p-6 sm:p-8">
+        {/* Bottom tagline */}
+        <p className="relative text-[12px] text-white/40">
+          © 2026 Hapylo · Home Essentials, Thoughtfully Made.
+        </p>
+      </div>
+
+      {/* ── Right: Form panel ── */}
+      <div className="flex flex-1 flex-col items-center justify-center px-6 py-12 sm:px-10">
+        <div className="w-full max-w-sm">
+
+          {/* Mobile logo */}
+          <Link href="/" className="mb-8 flex items-center gap-2 font-display text-2xl font-extrabold tracking-[-0.05em] text-primary lg:hidden">
+            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-xs tracking-normal text-white">H</span>
+            Hapylo
+          </Link>
+
           {success ? (
-            <div className="flex flex-col items-center gap-4 py-8 text-center">
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-secondary-container text-primary">
-                <span className="material-symbols-outlined text-4xl">mark_email_read</span>
+            <div className="flex flex-col items-center gap-5 py-6 text-center">
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-secondary-container">
+                <span className="material-symbols-outlined text-4xl text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>mark_email_read</span>
               </div>
-              <h2 className="font-display text-2xl font-extrabold text-on-surface">Check your email</h2>
-              <p className="text-sm text-on-surface-variant">We sent a confirmation link to <strong>{email}</strong>. Click it to activate your account.</p>
-              <Link href="/login" className="btn-primary mt-2 px-8 py-3 text-sm">Back to sign in</Link>
+              <div>
+                <h2 className="font-display text-2xl font-extrabold text-on-surface">Check your email</h2>
+                <p className="mt-2 text-sm text-on-surface-variant">
+                  We sent a confirmation link to <strong>{email}</strong>.<br />Click it to activate your account.
+                </p>
+              </div>
+              <Link href="/login" className="btn-primary mt-1 rounded-xl px-8 py-3 text-sm">
+                Back to sign in
+              </Link>
             </div>
           ) : (
             <>
-              <p className="text-xs font-extrabold tracking-[0.14em] text-accent uppercase">Create your account</p>
-              <h2 className="mt-3 font-display text-3xl font-extrabold tracking-[-0.04em] text-on-surface">Let&apos;s get started</h2>
-              <p className="mt-2 text-sm text-on-surface-variant">Already a member? <Link href="/login" className="font-bold text-primary transition-colors hover:text-primary-hover">Sign in</Link></p>
+              <p className="text-[11px] font-extrabold tracking-[0.14em] uppercase text-accent">Create your account</p>
+              <h2 className="mt-2 font-display text-2xl font-extrabold tracking-[-0.03em] text-on-surface">
+                Let&apos;s get started
+              </h2>
+
+              {/* Already have account */}
+              <div className="mt-5 flex flex-col gap-2 rounded-xl border border-outline-variant/60 bg-surface-container-low p-4 sm:flex-row sm:items-center sm:justify-between">
+                <span className="text-sm text-on-surface-variant">Already a member?</span>
+                <Link
+                  href="/login"
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-primary/30 px-4 py-2 text-sm font-bold text-primary transition-all hover:bg-primary hover:text-white hover:border-primary"
+                >
+                  Sign in
+                  <span className="material-symbols-outlined text-[15px]">arrow_forward</span>
+                </Link>
+              </div>
 
               {/* Google OAuth */}
               <div className="mt-6">
@@ -71,19 +143,23 @@ export default function SignupPage() {
               </div>
 
               {/* Divider */}
-              <div className="my-6 flex items-center gap-3">
+              <div className="my-5 flex items-center gap-3">
                 <div className="h-px flex-1 bg-outline-variant" />
                 <span className="text-xs font-medium text-on-surface-variant">or sign up with email</span>
                 <div className="h-px flex-1 bg-outline-variant" />
               </div>
 
               {error && (
-                <div className="mb-4 rounded-md bg-error-container p-3 text-sm text-on-error-container">{error}</div>
+                <div className="mb-4 flex items-center gap-2 rounded-xl bg-error-container p-3.5 text-sm text-on-error-container">
+                  <span className="material-symbols-outlined text-[18px]">error</span>
+                  {error}
+                </div>
               )}
 
-              <form onSubmit={handleSignup} className="space-y-5">
+              <form onSubmit={handleSignup} className="space-y-4">
+                {/* Full name */}
                 <div>
-                  <label htmlFor="full-name" className="block text-sm font-bold text-on-surface">Full name</label>
+                  <label htmlFor="full-name" className="block text-sm font-semibold text-on-surface">Full name</label>
                   <input
                     id="full-name"
                     name="name"
@@ -92,12 +168,14 @@ export default function SignupPage() {
                     required
                     value={name}
                     onChange={e => setName(e.target.value)}
-                    className="mt-2 block w-full rounded-md border border-outline-variant bg-surface px-4 py-3 text-on-surface placeholder-outline shadow-sm transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                    placeholder="Enter your full name"
+                    className="mt-2 block w-full rounded-xl border border-outline-variant bg-surface px-4 py-3 text-sm text-on-surface placeholder-outline shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    placeholder="Your full name"
                   />
                 </div>
+
+                {/* Email */}
                 <div>
-                  <label htmlFor="signup-email" className="block text-sm font-bold text-on-surface">Email address</label>
+                  <label htmlFor="signup-email" className="block text-sm font-semibold text-on-surface">Email address</label>
                   <input
                     id="signup-email"
                     name="email"
@@ -106,38 +184,66 @@ export default function SignupPage() {
                     required
                     value={email}
                     onChange={e => setEmail(e.target.value)}
-                    className="mt-2 block w-full rounded-md border border-outline-variant bg-surface px-4 py-3 text-on-surface placeholder-outline shadow-sm transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                    placeholder="Enter your email"
+                    className="mt-2 block w-full rounded-xl border border-outline-variant bg-surface px-4 py-3 text-sm text-on-surface placeholder-outline shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    placeholder="you@example.com"
                   />
                 </div>
+
+                {/* Password */}
                 <div>
-                  <label htmlFor="signup-password" className="block text-sm font-bold text-on-surface">Password</label>
-                  <input
-                    id="signup-password"
-                    name="password"
-                    type="password"
-                    autoComplete="new-password"
-                    required
-                    minLength={8}
-                    value={password}
-                    onChange={e => setPassword(e.target.value)}
-                    className="mt-2 block w-full rounded-md border border-outline-variant bg-surface px-4 py-3 text-on-surface placeholder-outline shadow-sm transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                    placeholder="At least 8 characters"
-                  />
+                  <label htmlFor="signup-password" className="block text-sm font-semibold text-on-surface">Password</label>
+                  <div className="relative mt-2">
+                    <input
+                      id="signup-password"
+                      name="password"
+                      type={showPassword ? 'text' : 'password'}
+                      autoComplete="new-password"
+                      required
+                      minLength={8}
+                      value={password}
+                      onChange={e => setPassword(e.target.value)}
+                      className="block w-full rounded-xl border border-outline-variant bg-surface px-4 py-3 pr-12 text-sm text-on-surface placeholder-outline shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                      placeholder="At least 8 characters"
+                    />
+                    <button
+                      type="button"
+                      aria-label={showPassword ? 'Hide password' : 'Show password'}
+                      onClick={() => setShowPassword(v => !v)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant transition-colors hover:text-primary"
+                    >
+                      <span className="material-symbols-outlined text-[20px]">
+                        {showPassword ? 'visibility_off' : 'visibility'}
+                      </span>
+                    </button>
+                  </div>
                 </div>
+
                 <button
                   type="submit"
                   disabled={loading}
-                  className="btn-primary w-full py-3.5 text-sm disabled:opacity-60"
+                  className="btn-primary w-full rounded-xl py-3.5 text-sm disabled:opacity-60"
                 >
-                  {loading ? 'Creating account…' : 'Create account'}
+                  {loading ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <span className="material-symbols-outlined animate-spin text-[18px]">progress_activity</span>
+                      Creating account…
+                    </span>
+                  ) : (
+                    'Create account'
+                  )}
                 </button>
-                <p className="text-center text-xs leading-relaxed text-on-surface-variant">By creating an account, you agree to our Terms and Privacy Policy.</p>
+
+                <p className="text-center text-xs leading-relaxed text-on-surface-variant">
+                  By creating an account, you agree to our{' '}
+                  <Link href="/privacy-policy" className="font-semibold text-primary hover:underline">
+                    Privacy Policy
+                  </Link>
+                </p>
               </form>
             </>
           )}
         </div>
       </div>
-    </section>
+    </div>
   )
 }

@@ -42,9 +42,10 @@ export function ProductCard({ product, className = '' }: ProductCardProps) {
   return (
     <Link
       href={`/product/${product.slug}`}
-      className={`group relative flex cursor-pointer flex-col overflow-hidden rounded-md border border-outline-variant bg-surface shadow-card transition-all duration-300 hover:-translate-y-2 hover:border-primary-fixed-dim hover:shadow-card-hover ${className}`}
+      className={`group relative flex cursor-pointer flex-col overflow-hidden rounded-xl border border-outline-variant bg-surface shadow-card transition-all duration-300 hover:-translate-y-1 hover:border-primary-fixed-dim hover:shadow-card-hover ${className}`}
     >
-      <div className="relative aspect-[3/4] overflow-hidden bg-surface-container-low">
+      {/* Image container — shorter on mobile, taller on desktop */}
+      <div className="relative aspect-square md:aspect-[3/4] overflow-hidden bg-surface-container-low">
         {product.images[0] && (
           <Image
             src={product.images[0]}
@@ -55,10 +56,11 @@ export function ProductCard({ product, className = '' }: ProductCardProps) {
           />
         )}
 
-        <div className="absolute right-0 bottom-0 left-0 z-20 translate-y-full bg-gradient-to-t from-primary/85 to-transparent p-4 pt-12 transition-transform duration-500 ease-out group-hover:translate-y-0">
+        {/* Desktop hover overlay — hidden on mobile */}
+        <div className="absolute right-0 bottom-0 left-0 z-20 hidden translate-y-full bg-gradient-to-t from-primary/85 to-transparent p-3 pt-10 transition-transform duration-500 ease-out group-hover:translate-y-0 md:block">
           <button
             onClick={handleAddToCart}
-            className={`flex w-full items-center justify-center gap-2 rounded-md py-3 text-sm font-semibold shadow-md transition-all duration-200 ${
+            className={`flex w-full items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-semibold shadow-md transition-all duration-200 ${
               addedToCart
                 ? 'bg-secondary-container text-primary'
                 : 'btn-primary'
@@ -83,10 +85,10 @@ export function ProductCard({ product, className = '' }: ProductCardProps) {
         <button
           aria-label={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
           onClick={handleWishlist}
-          className="absolute top-3 right-3 z-10 rounded-full bg-white/95 p-2.5 shadow-sm backdrop-blur-sm transition-colors hover:bg-secondary-container"
+          className="absolute top-2 right-2 z-10 rounded-full bg-white/95 p-2 shadow-sm backdrop-blur-sm transition-colors hover:bg-secondary-container"
         >
           <span
-            className="material-symbols-outlined text-[20px] transition-colors"
+            className="material-symbols-outlined text-[18px] transition-colors"
             style={{
               fontVariationSettings: wishlisted ? "'FILL' 1" : "'FILL' 0",
               color: wishlisted ? '#DC2626' : undefined,
@@ -97,35 +99,51 @@ export function ProductCard({ product, className = '' }: ProductCardProps) {
         </button>
       </div>
 
-      <div className="flex flex-grow flex-col gap-2 p-4">
+      {/* Card body */}
+      <div className="flex flex-grow flex-col gap-1 p-2.5 md:p-4">
         {product.rating !== undefined && (
-          <div className="mb-1 flex items-center gap-1">
+          <div className="flex items-center gap-0.5">
             <span
-              className="material-symbols-outlined text-[16px] text-accent"
+              className="material-symbols-outlined text-[13px] text-accent"
               style={{ fontVariationSettings: "'FILL' 1" }}
             >
               star
             </span>
-            <span className="text-caption text-on-surface-variant">
+            <span className="text-[11px] text-on-surface-variant md:text-caption">
               {product.rating} ({product.review_count})
             </span>
           </div>
         )}
 
-        <h3 className="line-clamp-2 text-base leading-snug font-semibold text-on-surface transition-colors group-hover:text-primary">
+        <h3 className="line-clamp-2 text-[13px] leading-snug font-semibold text-on-surface transition-colors group-hover:text-primary md:text-base">
           {product.name}
         </h3>
 
-        <div className="mt-auto flex items-center gap-2 pt-2">
-          <span className="font-display text-lg font-bold text-on-surface">
+        <div className="flex items-center gap-1.5 pt-1">
+          <span className="font-display text-base font-bold text-on-surface md:text-lg">
             ₹{product.price.toFixed(2)}
           </span>
           {product.compare_at_price && (
-            <span className="text-sm text-on-surface-variant line-through">
+            <span className="text-[11px] text-on-surface-variant line-through md:text-sm">
               ₹{product.compare_at_price.toFixed(2)}
             </span>
           )}
         </div>
+
+        {/* Mobile Add to Cart — always visible on mobile, hidden on desktop */}
+        <button
+          onClick={handleAddToCart}
+          className={`mt-2 flex w-full items-center justify-center gap-1.5 rounded-lg py-2 text-xs font-semibold shadow-sm transition-all duration-200 md:hidden ${
+            addedToCart
+              ? 'bg-secondary-container text-primary'
+              : 'bg-primary text-white'
+          }`}
+        >
+          <span className="material-symbols-outlined text-[15px]">
+            {addedToCart ? 'check_circle' : 'add_shopping_cart'}
+          </span>
+          {addedToCart ? 'Added!' : 'Add to Cart'}
+        </button>
       </div>
     </Link>
   )
