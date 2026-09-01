@@ -35,7 +35,7 @@ export function HeaderDesktop({ activeHref = '/' }: HeaderDesktopProps) {
   }
 
   return (
-    <header className="sticky top-0 z-50 hidden flex-col border-b border-outline-variant bg-surface/95 backdrop-blur-xl transition-all duration-300 md:flex">
+    <header className="sticky top-0 z-50 hidden flex-col glass-panel transition-all duration-300 md:flex">
       <nav className="page-wrap flex h-[4.5rem] items-center justify-between gap-8 py-2">
         {/* Left: Logo */}
         <Link href="/" className="flex flex-none items-center gap-2 font-display text-3xl font-extrabold tracking-[-0.06em] text-primary transition-colors hover:text-primary-hover">
@@ -90,7 +90,7 @@ export function HeaderDesktop({ activeHref = '/' }: HeaderDesktopProps) {
       </nav>
 
       {/* Secondary Nav Bar for Links */}
-      <div className="bg-surface-container-low border-t border-outline-variant">
+      <div className="border-t border-outline-variant/30">
         <div className="page-wrap flex items-center gap-6 py-1.5">
           {navLinks.map(link => (
             <Link

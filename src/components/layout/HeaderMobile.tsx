@@ -21,7 +21,7 @@ export function HeaderMobile({}: HeaderMobileProps) {
   const cartCount = items.reduce((count, item) => count + item.quantity, 0)
   return (
     <>
-      <header className="sticky top-0 z-50 flex w-full items-center justify-between border-b border-outline-variant bg-surface/95 px-6 py-3 shadow-sm backdrop-blur-xl md:hidden">
+      <header className="sticky top-0 z-50 flex w-full items-center justify-between glass-panel px-6 py-3 shadow-sm md:hidden">
         <div className="flex-none">
           <button
             onClick={() => setDrawerOpen(true)}

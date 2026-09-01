@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Product } from '@/types/database.types'
@@ -21,6 +21,15 @@ export default function PDPClient({ product, relatedProducts }: PDPClientProps) 
   const [selectedScent, setSelectedScent] = useState(product.scents?.[0]?.name ?? '')
   const [quantity, setQuantity] = useState(1)
   const [shareCopied, setShareCopied] = useState(false)
+  const [showStickyCart, setShowStickyCart] = useState(false)
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowStickyCart(window.scrollY > 400)
+    }
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   const addItem = useCart(state => state.addItem)
   const { toggleItem, isWishlisted } = useWishlist()
@@ -100,7 +109,7 @@ export default function PDPClient({ product, relatedProducts }: PDPClientProps) 
                 src={product.images[selectedImage]}
                 alt={product.name}
                 fill
-                className="object-cover transition-transform duration-700 ease-in-out group-hover:scale-105"
+                className="object-cover transition-transform duration-700 ease-in-out hover:scale-125 hover:cursor-zoom-in"
                 priority
                 sizes="(max-width: 768px) 100vw, 58vw"
               />
@@ -282,30 +291,46 @@ export default function PDPClient({ product, relatedProducts }: PDPClientProps) 
         </section>
       )}
 
-      <div className="glass-panel fixed right-0 bottom-0 left-0 z-40 flex items-center justify-between px-6 py-4 pb-safe md:hidden">
-        <div className="flex items-center rounded-md border border-outline-variant bg-surface p-1">
-          <button
-            onClick={() => setQuantity(q => Math.max(1, q - 1))}
-            className="flex h-8 w-8 items-center justify-center rounded-sm text-primary transition-colors hover:bg-secondary-container"
+      <div className={`glass-panel fixed right-0 bottom-0 left-0 z-40 flex items-center justify-between px-6 py-4 pb-safe transition-transform duration-300 ${
+        showStickyCart ? 'translate-y-0' : 'translate-y-full'
+      }`}>
+        <div className="hidden md:flex items-center gap-4">
+          {product.images[0] && (
+            <div className="relative h-12 w-12 overflow-hidden rounded-md border border-outline-variant">
+              <Image src={product.images[0]} alt={product.name} fill className="object-cover" sizes="48px" />
+            </div>
+          )}
+          <div>
+            <p className="font-bold text-on-surface line-clamp-1">{product.name}</p>
+            <p className="text-sm text-on-surface-variant">₹{totalPrice}</p>
+          </div>
+        </div>
+        
+        <div className="flex flex-1 md:flex-none items-center justify-end gap-4">
+          <div className="flex items-center rounded-md border border-outline-variant bg-surface p-1">
+            <button
+              onClick={() => setQuantity(q => Math.max(1, q - 1))}
+              className="flex h-8 w-8 items-center justify-center rounded-sm text-primary transition-colors hover:bg-secondary-container"
+            >
+              <span className="material-symbols-outlined text-[20px]">remove</span>
+            </button>
+            <span className="w-8 text-center font-label text-label-md">{quantity}</span>
+            <button
+              onClick={() => setQuantity(q => q + 1)}
+              className="flex h-8 w-8 items-center justify-center rounded-sm text-primary transition-colors hover:bg-secondary-container"
+            >
+              <span className="material-symbols-outlined text-[20px]">add</span>
+            </button>
+          </div>
+          <button 
+            onClick={handleAddToCart}
+            className="btn-primary flex flex-grow md:flex-grow-0 items-center justify-center gap-2 px-8 py-3 text-sm"
           >
-            <span className="material-symbols-outlined text-[20px]">remove</span>
-          </button>
-          <span className="w-8 text-center font-label text-label-md">{quantity}</span>
-          <button
-            onClick={() => setQuantity(q => q + 1)}
-            className="flex h-8 w-8 items-center justify-center rounded-sm text-primary transition-colors hover:bg-secondary-container"
-          >
-            <span className="material-symbols-outlined text-[20px]">add</span>
+            <span>Add to Cart</span>
+            <span className="md:hidden">·</span>
+            <span className="md:hidden">₹{totalPrice}</span>
           </button>
         </div>
-        <button 
-          onClick={handleAddToCart}
-          className="btn-primary ml-4 flex flex-grow items-center justify-center gap-2 px-6 py-3 text-sm"
-        >
-          <span>Add to Cart</span>
-          <span>·</span>
-          <span>₹{totalPrice}</span>
-        </button>
       </div>
     </>
   )

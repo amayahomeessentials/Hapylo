@@ -15,7 +15,7 @@ export default async function HomePage() {
 
   return (
     <>
-      <section className="relative flex min-h-[640px] flex-col overflow-hidden bg-primary md:h-[760px] md:flex-row">
+      <section className="relative flex min-h-[640px] flex-col overflow-hidden bg-gradient-sage md:h-[760px] md:flex-row">
         <div className="relative z-10 flex flex-1 flex-col justify-center px-6 py-16 text-white md:px-12 md:py-0 lg:px-24">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_12%_18%,rgba(239,127,60,0.25),transparent_28%),radial-gradient(circle_at_72%_84%,rgba(167,217,208,0.22),transparent_32%)]" />
           <div className="max-w-2xl">
@@ -30,6 +30,7 @@ export default async function HomePage() {
             </p>
             <Link
               href="/shop"
+              prefetch={true}
               className="group relative inline-flex w-fit items-center gap-2 rounded-md bg-accent px-8 py-4 text-base font-bold text-white shadow-lg transition-all hover:-translate-y-1 hover:bg-accent-hover"
             >
               Explore the collection
@@ -60,13 +61,14 @@ export default async function HomePage() {
         <div className="page-wrap">
           <div className="mb-10 flex flex-col justify-between gap-3 md:flex-row md:items-end">
             <div><span className="eyebrow text-accent">Made for everyday</span><h2 className="section-heading mt-3 text-h2 text-on-surface">Shop the routine, not just the product.</h2></div>
-            <Link href="/shop" className="text-sm font-extrabold tracking-wide text-primary hover:text-accent">VIEW ALL PRODUCTS →</Link>
+            <Link href="/shop" prefetch={true} className="text-sm font-extrabold tracking-wide text-primary hover:text-accent">VIEW ALL PRODUCTS →</Link>
           </div>
           <div className="no-scrollbar flex snap-x gap-6 overflow-x-auto pb-4 md:grid md:grid-cols-4">
             {categories.map(cat => (
               <Link
                 key={cat.id}
                 href={`/shop/${cat.slug}`}
+                prefetch={true}
                 className="group flex w-32 shrink-0 snap-start flex-col items-center gap-4 focus:outline-none md:w-auto"
               >
                 <div className="h-28 w-28 overflow-hidden rounded-full border-4 border-surface-container-low bg-surface-container-low shadow-md transition-all duration-300 group-hover:-translate-y-2 group-hover:border-primary-fixed group-hover:shadow-lg">
@@ -91,6 +93,7 @@ export default async function HomePage() {
             </h2></div>
             <Link
               href="/shop"
+              prefetch={true}
               className="flex items-center gap-1 text-sm font-bold text-primary transition-colors hover:text-primary-hover"
             >
               Shop All
@@ -101,7 +104,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="section-pad bg-primary text-white">
+      <section className="section-pad bg-gradient-sage text-white">
         <div className="page-wrap text-center">
           <span className="eyebrow text-primary-fixed">The Hapylo way</span>
           <h2 className="section-heading mx-auto mt-3 mb-12 text-h2 text-white">
@@ -127,7 +130,7 @@ export default async function HomePage() {
 
 
       <section className="section-pad bg-background text-center">
-        <div className="mx-auto flex max-w-4xl flex-col items-center gap-8 rounded-lg bg-primary px-6 py-16 text-white shadow-lg md:px-14">
+        <div className="mx-auto flex max-w-4xl flex-col items-center gap-8 rounded-lg bg-gradient-sage px-6 py-24 text-white shadow-lg md:px-14">
           <span className="eyebrow text-primary-fixed">Start fresh</span>
           <h2 className="section-heading text-h2 text-white">
             Bring more ease into every clean.
@@ -137,6 +140,7 @@ export default async function HomePage() {
           </p>
           <Link
             href="/shop"
+            prefetch={true}
             className="group mt-4 inline-flex items-center gap-2 rounded-md bg-accent px-8 py-4 text-base font-bold text-white transition-all hover:-translate-y-1 hover:bg-accent-hover"
           >
             Shop All Products

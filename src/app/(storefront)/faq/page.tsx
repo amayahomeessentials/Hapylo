@@ -21,7 +21,7 @@ const faqs = [
   },
   {
     q: 'How long does shipping take?',
-    a: 'We ship across India in 3–7 business days. Orders above ₹500 (or $50) qualify for free shipping. Express delivery options are available at checkout.',
+    a: 'We ship across India in 3–7 business days. Orders above ₹500 qualify for free shipping. Express delivery options are available at checkout.',
   },
   {
     q: 'Can I return a product I don\'t like?',

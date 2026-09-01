@@ -81,10 +81,10 @@ export default async function AdminProductsPage() {
 
                   {/* Price */}
                   <td className="px-4 py-3 text-right font-medium text-on-surface">
-                    ${product.price.toFixed(2)}
+                    ₹{product.price.toFixed(2)}
                     {product.compare_at_price && (
                       <span className="ml-1 text-xs text-on-surface-variant line-through">
-                        ${product.compare_at_price.toFixed(2)}
+                        ₹{product.compare_at_price.toFixed(2)}
                       </span>
                     )}
                   </td>

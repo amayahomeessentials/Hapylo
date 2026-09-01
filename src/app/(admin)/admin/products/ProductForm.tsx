@@ -223,7 +223,7 @@ export function ProductForm({ product, categories }: ProductFormProps) {
         <h2 className="mb-5 font-display text-lg font-bold text-on-surface">Pricing & Stock</h2>
         <div className="grid gap-5 sm:grid-cols-3">
           <div>
-            <label className="label">Price ($)</label>
+            <label className="label">Price (₹)</label>
             <input
               required
               type="number"
@@ -236,7 +236,7 @@ export function ProductForm({ product, categories }: ProductFormProps) {
             />
           </div>
           <div>
-            <label className="label">Compare-at Price ($)</label>
+            <label className="label">Compare-at Price (₹)</label>
             <input
               type="number"
               min="0"

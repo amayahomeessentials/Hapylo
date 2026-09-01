@@ -26,6 +26,7 @@ export default function ShopClient({ initialProducts, categories }: { initialPro
   const [filterSheetOpen, setFilterSheetOpen] = useState(false)
   const [sortSheetOpen, setSortSheetOpen] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
+  const [isFiltering, setIsFiltering] = useState(false)
 
   // Sync URL query param to search
   useEffect(() => {
@@ -34,17 +35,21 @@ export default function ShopClient({ initialProducts, categories }: { initialPro
   }, [initialQ])
 
   const toggleCategory = (slug: string) => {
+    setIsFiltering(true)
     setSelectedCategories(prev =>
       prev.includes(slug) ? prev.filter(c => c !== slug) : [...prev, slug]
     )
     setCurrentPage(1)
+    setTimeout(() => setIsFiltering(false), 400)
   }
 
   const toggleFeature = (feat: FeatureFilter) => {
+    setIsFiltering(true)
     setSelectedFeatures(prev =>
       prev.includes(feat) ? prev.filter(f => f !== feat) : [...prev, feat]
     )
     setCurrentPage(1)
+    setTimeout(() => setIsFiltering(false), 400)
   }
 
   const filteredProducts = useMemo(() => {
@@ -125,7 +130,7 @@ export default function ShopClient({ initialProducts, categories }: { initialPro
             type="number"
             placeholder="Min"
             value={priceMin}
-            onChange={e => { setPriceMin(e.target.value); setCurrentPage(1) }}
+            onChange={e => { setPriceMin(e.target.value); setCurrentPage(1); setIsFiltering(true); setTimeout(() => setIsFiltering(false), 400) }}
             className="w-full rounded-md border border-outline-variant bg-surface px-3 py-2 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary"
           />
           <span className="text-on-surface-variant">–</span>
@@ -133,7 +138,7 @@ export default function ShopClient({ initialProducts, categories }: { initialPro
             type="number"
             placeholder="Max"
             value={priceMax}
-            onChange={e => { setPriceMax(e.target.value); setCurrentPage(1) }}
+            onChange={e => { setPriceMax(e.target.value); setCurrentPage(1); setIsFiltering(true); setTimeout(() => setIsFiltering(false), 400) }}
             className="w-full rounded-md border border-outline-variant bg-surface px-3 py-2 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary"
           />
         </div>
@@ -175,7 +180,7 @@ export default function ShopClient({ initialProducts, categories }: { initialPro
               <input
                 type="text"
                 value={searchQuery}
-                onChange={e => { setSearchQuery(e.target.value); setCurrentPage(1) }}
+                onChange={e => { setSearchQuery(e.target.value); setCurrentPage(1); setIsFiltering(true); setTimeout(() => setIsFiltering(false), 400) }}
                 placeholder="Search products..."
                 className="w-full rounded-md border border-white/20 bg-white py-3 pr-4 pl-10 text-sm text-on-surface shadow-sm outline-none focus:border-accent focus:ring-2 focus:ring-accent/30"
               />
@@ -183,7 +188,7 @@ export default function ShopClient({ initialProducts, categories }: { initialPro
             <div className="relative min-w-[160px]">
               <select
                 value={sortBy}
-                onChange={e => { setSortBy(e.target.value as SortOption); setCurrentPage(1) }}
+                onChange={e => { setSortBy(e.target.value as SortOption); setCurrentPage(1); setIsFiltering(true); setTimeout(() => setIsFiltering(false), 400) }}
                 className="w-full cursor-pointer appearance-none rounded-md border border-white/20 bg-white px-4 py-3 pr-10 text-sm text-on-surface shadow-sm outline-none focus:border-accent focus:ring-2 focus:ring-accent/30"
               >
                 <option value="featured">Sort: Featured</option>
@@ -252,7 +257,13 @@ export default function ShopClient({ initialProducts, categories }: { initialPro
               {totalPages > 1 && ` — page ${currentPage} of ${totalPages}`}
             </p>
 
-            {paginatedProducts.length === 0 ? (
+            {isFiltering ? (
+              <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6 lg:grid-cols-4">
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <ProductCardSkeleton key={i} />
+                ))}
+              </div>
+            ) : paginatedProducts.length === 0 ? (
               <div className="flex flex-col items-center gap-4 py-24 text-center">
                 <span className="material-symbols-outlined text-6xl text-outline">search_off</span>
                 <h3 className="font-display text-h3 text-on-surface">No products found</h3>
@@ -343,7 +354,7 @@ export default function ShopClient({ initialProducts, categories }: { initialPro
           {(Object.entries(SORT_LABELS) as [SortOption, string][]).map(([val, label]) => (
             <button
               key={val}
-              onClick={() => { setSortBy(val); setSortSheetOpen(false); setCurrentPage(1) }}
+              onClick={() => { setSortBy(val); setSortSheetOpen(false); setCurrentPage(1); setIsFiltering(true); setTimeout(() => setIsFiltering(false), 400) }}
               className={`flex w-full items-center justify-between rounded-md px-4 py-3 text-sm transition-colors ${
                 sortBy === val ? 'bg-secondary-container text-primary font-bold' : 'text-on-surface hover:bg-surface-container-low'
               }`}

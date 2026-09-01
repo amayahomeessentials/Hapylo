@@ -106,7 +106,12 @@ export default function LoginPage() {
             <>
               <p className="text-xs font-extrabold tracking-[0.14em] text-accent uppercase">Welcome back</p>
               <h2 className="mt-3 font-display text-3xl font-extrabold tracking-[-0.04em] text-on-surface">Sign in</h2>
-              <p className="mt-2 text-sm text-on-surface-variant">New here? <Link href="/signup" className="font-bold text-primary transition-colors hover:text-primary-hover">Create an account</Link></p>
+              <div className="mt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-lg border border-primary/20 bg-primary/5 p-4">
+                <span className="text-sm font-medium text-on-surface-variant">Don't have an account yet?</span>
+                <Link href="/signup" className="btn-secondary whitespace-nowrap px-5 py-2 text-sm shadow-sm transition-all hover:bg-primary hover:text-white hover:border-primary">
+                  Create an account
+                </Link>
+              </div>
 
               {/* Google OAuth */}
               <div className="mt-6">

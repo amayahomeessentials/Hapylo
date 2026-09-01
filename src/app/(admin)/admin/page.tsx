@@ -27,7 +27,7 @@ export default async function AdminDashboard() {
             <span className="material-symbols-outlined text-xl text-primary">payments</span>
           </div>
           <p className="mt-3 font-display text-3xl font-bold text-on-surface">
-            ${stats.totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            ₹{stats.totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </p>
         </div>
 
@@ -93,7 +93,7 @@ export default async function AdminDashboard() {
                     </span>
                   </td>
                   <td className="px-6 py-3 text-right font-medium text-on-surface">
-                    ${order.total.toFixed(2)}
+                    ₹{order.total.toFixed(2)}
                   </td>
                 </tr>
               ))}

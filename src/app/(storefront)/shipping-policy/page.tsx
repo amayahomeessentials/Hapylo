@@ -24,7 +24,7 @@ export default function ShippingPolicyPage() {
             </section>
             <section className="surface-card p-6">
               <h2 className="mb-3 font-display text-xl font-bold text-on-surface">Shipping Costs</h2>
-              <p>We offer <strong>free standard shipping</strong> on all orders above ₹500 (or $50). For orders below this threshold, a flat shipping fee of ₹60 (or $5) applies.</p>
+              <p>We offer <strong>free standard shipping</strong> on all orders above ₹500. For orders below this threshold, a flat shipping fee of ₹60 applies.</p>
             </section>
             <section className="surface-card p-6">
               <h2 className="mb-3 font-display text-xl font-bold text-on-surface">Carbon-Neutral Shipping</h2>
