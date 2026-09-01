@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
-import { getFeaturedProducts, getBestSellers, getAllCategories } from '@/data/products'
+import { getBestSellers, getAllCategories } from '@/data/products'
 import { ProductGrid } from '@/components/product/ProductGrid'
 
 export const metadata: Metadata = {
@@ -10,7 +10,6 @@ export const metadata: Metadata = {
 }
 
 export default async function HomePage() {
-  const featuredProducts = await getFeaturedProducts()
   const bestSellers = await getBestSellers()
   const categories = await getAllCategories()
 
@@ -23,8 +22,8 @@ export default async function HomePage() {
             <span className="eyebrow relative mb-6 text-primary-fixed">
               Elevated home essentials
             </span>
-            <h1 className="relative mb-6 font-display text-5xl leading-[0.98] font-extrabold tracking-[-0.055em] text-white md:text-6xl lg:text-7xl">
-              Clean home.<br /><span className="text-primary-fixed">Clear mind.</span>
+            <h1 className="relative mb-6 font-display text-5xl leading-tight font-extrabold tracking-tight text-white md:text-6xl lg:text-7xl">
+              Clean home. <span className="text-primary-fixed">Clear mind.</span>
             </h1>
             <p className="relative mb-9 max-w-lg text-lg leading-relaxed text-white/75 md:text-xl">
               Thoughtfully designed, plant-powered formulas for the routines that make a house feel like home.
@@ -126,23 +125,6 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="section-pad bg-surface">
-        <div className="page-wrap">
-          <div className="mb-8 flex items-end justify-between md:mb-12">
-            <div><span className="eyebrow text-accent">Just landed</span><h2 className="section-heading mt-3 text-h2 text-on-surface">
-              New Arrivals
-            </h2></div>
-            <Link
-              href="/shop"
-              className="flex items-center gap-1 text-sm font-bold text-primary transition-colors hover:text-primary-hover"
-            >
-              View All
-              <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
-            </Link>
-          </div>
-          <ProductGrid products={featuredProducts.slice(0, 4)} columns={4} />
-        </div>
-      </section>
 
       <section className="section-pad bg-background text-center">
         <div className="mx-auto flex max-w-4xl flex-col items-center gap-8 rounded-lg bg-primary px-6 py-16 text-white shadow-lg md:px-14">
