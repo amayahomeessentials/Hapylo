@@ -142,7 +142,7 @@ export default function LoginPage() {
         <div className="absolute -bottom-20 left-1/4 h-96 w-96 rounded-full bg-white/5" />
 
         {/* Logo */}
-        <Link href="/" className="relative flex items-center gap-2.5 font-display text-2xl font-extrabold tracking-[-0.05em] text-white">
+        <Link href="/" className="relative z-10 flex items-center gap-2.5 font-display text-2xl font-extrabold tracking-[-0.05em] text-white">
           <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/20 text-base tracking-normal text-white backdrop-blur-sm">H</span>
           Hapylo
         </Link>

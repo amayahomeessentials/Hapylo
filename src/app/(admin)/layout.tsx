@@ -200,6 +200,13 @@ function Sidebar({ pathname, onClose }: { pathname: string; onClose?: () => void
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const [mobileOpen, setMobileOpen] = useState(false)
+  const router = useRouter()
+
+  const handleSignOut = async () => {
+    const supabase = createClient()
+    await supabase.auth.signOut()
+    router.push('/login')
+  }
 
   return (
     <div className="flex min-h-screen" style={{ background: '#EEF0EC' }}>
@@ -238,14 +245,23 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         {/* Desktop header bar */}
         <div className="hidden h-14 items-center justify-between border-b bg-white px-8 md:flex" style={{ borderColor: '#E0E4E0' }}>
           <Breadcrumb pathname={pathname} />
-          <Link
-            href="/"
-            target="_blank"
-            className="flex items-center gap-1.5 text-xs font-medium text-on-surface-variant transition-colors hover:text-primary"
-          >
-            <span className="material-symbols-outlined text-[13px]">open_in_new</span>
-            Storefront
-          </Link>
+          <div className="flex items-center gap-6">
+            <Link
+              href="/"
+              target="_blank"
+              className="flex items-center gap-1.5 text-xs font-medium text-on-surface-variant transition-colors hover:text-primary"
+            >
+              <span className="material-symbols-outlined text-[13px]">open_in_new</span>
+              Storefront
+            </Link>
+            <button
+              onClick={handleSignOut}
+              className="flex items-center gap-1.5 text-xs font-semibold text-error transition-colors hover:text-error/80"
+            >
+              <span className="material-symbols-outlined text-[13px]">logout</span>
+              Sign Out
+            </button>
+          </div>
         </div>
 
         {/* Content */}
