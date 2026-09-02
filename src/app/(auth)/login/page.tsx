@@ -32,6 +32,8 @@ export default function LoginPage() {
   const [forgotSent, setForgotSent] = useState(false)
   const [forgotLoading, setForgotLoading] = useState(false)
   const [forgotError, setForgotError] = useState('')
+  const [forgotOtp, setForgotOtp] = useState('')
+  const [newPassword, setNewPassword] = useState('')
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -65,18 +67,25 @@ export default function LoginPage() {
     e.preventDefault()
     setError('')
     setLoading(true)
-    const supabase = createClient()
-    const { error: otpError } = await supabase.auth.signInWithOtp({ 
-      email: otpEmail,
-      options: {
-        shouldCreateUser: false,
+
+    try {
+      const response = await fetch('/api/auth/send-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: otpEmail, type: 'login' })
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to send OTP')
       }
-    })
-    setLoading(false)
-    if (otpError) {
-      setError(otpError.message)
-    } else {
+      
       setOtpSent(true)
+    } catch (err: any) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -112,15 +121,54 @@ export default function LoginPage() {
     e.preventDefault()
     setForgotError('')
     setForgotLoading(true)
-    const supabase = createClient()
-    const { error: resetError } = await supabase.auth.resetPasswordForEmail(forgotEmail, {
-      redirectTo: `${window.location.origin}/account/reset-password`,
-    })
-    setForgotLoading(false)
-    if (resetError) {
-      setForgotError(resetError.message)
-    } else {
+    try {
+      const response = await fetch('/api/auth/send-reset', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: forgotEmail })
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to send reset code')
+      }
+      
       setForgotSent(true)
+    } catch (err: any) {
+      setForgotError(err.message)
+    } finally {
+      setForgotLoading(false)
+    }
+  const handleVerifyForgotOtp = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setForgotError('')
+    setForgotLoading(true)
+    const supabase = createClient()
+    const { error: verifyError } = await supabase.auth.verifyOtp({ 
+      email: forgotEmail, 
+      token: forgotOtp, 
+      type: 'recovery' 
+    })
+    
+    if (verifyError) {
+      setForgotError(verifyError.message)
+      setForgotLoading(false)
+      return
+    }
+
+    const { error: updateError } = await supabase.auth.updateUser({
+      password: newPassword
+    })
+
+    setForgotLoading(false)
+    if (updateError) {
+      setForgotError(updateError.message)
+    } else {
+      setShowForgot(false)
+      setForgotSent(false)
+      setLoginMethod('password')
+      setError('Password reset successfully. Please log in.')
     }
   }
 
@@ -210,10 +258,43 @@ export default function LoginPage() {
               </p>
 
               {forgotSent ? (
-                <div className="mt-6 flex items-center gap-3 rounded-xl bg-secondary-container p-4 text-sm text-primary">
-                  <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
-                  Reset email sent! Check your inbox.
-                </div>
+                <form onSubmit={handleVerifyForgotOtp} className="mt-7 space-y-5">
+                  {forgotError && (
+                    <div className="flex items-center gap-2 rounded-xl bg-error-container p-3.5 text-sm text-on-error-container">
+                      <span className="material-symbols-outlined text-[18px]">error</span>
+                      {forgotError}
+                    </div>
+                  )}
+                  <div>
+                    <label htmlFor="forgot-otp" className="block text-sm font-semibold text-on-surface">Verification Code</label>
+                    <p className="mt-1 mb-2 text-xs text-on-surface-variant">We sent a 6-digit code to {forgotEmail}</p>
+                    <input
+                      id="forgot-otp"
+                      type="text"
+                      required
+                      value={forgotOtp}
+                      onChange={e => setForgotOtp(e.target.value)}
+                      className="mt-2 block w-full rounded-xl border border-outline-variant bg-surface px-4 py-3 text-sm text-on-surface placeholder-outline shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                      placeholder="123456"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="new-password" className="block text-sm font-semibold text-on-surface">New Password</label>
+                    <input
+                      id="new-password"
+                      type="password"
+                      required
+                      minLength={8}
+                      value={newPassword}
+                      onChange={e => setNewPassword(e.target.value)}
+                      className="mt-2 block w-full rounded-xl border border-outline-variant bg-surface px-4 py-3 text-sm text-on-surface placeholder-outline shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                      placeholder="At least 8 characters"
+                    />
+                  </div>
+                  <button type="submit" disabled={forgotLoading} className="btn-primary w-full rounded-xl py-3.5 text-sm disabled:opacity-60">
+                    {forgotLoading ? 'Resetting…' : 'Reset Password'}
+                  </button>
+                </form>
               ) : (
                 <form onSubmit={handleForgotPassword} className="mt-7 space-y-5">
                   {forgotError && (

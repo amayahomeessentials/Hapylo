@@ -53,18 +53,25 @@ export default function SignupPage() {
     e.preventDefault()
     setError('')
     setLoading(true)
-    const supabase = createClient()
-    const { error: otpError } = await supabase.auth.signInWithOtp({ 
-      email: otpEmail,
-      options: {
-        data: { full_name: name }, // Save name on first signup
+
+    try {
+      const response = await fetch('/api/auth/send-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: otpEmail, name, type: 'signup' })
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to send OTP')
       }
-    })
-    setLoading(false)
-    if (otpError) {
-      setError(otpError.message)
-    } else {
+      
       setOtpSent(true)
+    } catch (err: any) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
     }
   }
 

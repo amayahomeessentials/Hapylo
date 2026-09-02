@@ -30,7 +30,7 @@ export function HeaderDesktop({ activeHref = '/' }: HeaderDesktopProps) {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
     if (searchQuery.trim()) {
-      router.push(`/shop?q=${encodeURIComponent(searchQuery.trim())}`)
+      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`)
     }
   }
 
