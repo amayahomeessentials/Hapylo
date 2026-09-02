@@ -1,12 +1,12 @@
 import { cookies } from 'next/headers'
 import { createServerClient } from '@supabase/ssr'
 import { redirect } from 'next/navigation'
-import { Database } from '@/types/database.types'
+
 import ProfileForm from './ProfileForm'
 
 export default async function AccountPage() {
-  const cookieStore = cookies()
-  const supabase = createServerClient<Database>(
+  const cookieStore = await cookies()
+  const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {

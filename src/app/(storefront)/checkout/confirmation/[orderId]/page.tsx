@@ -2,11 +2,11 @@ import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
-import { Database } from '@/types/database.types'
+
 
 export default async function OrderConfirmationPage({ params }: { params: { orderId: string } }) {
-  const cookieStore = cookies()
-  const supabase = createServerClient<Database>(
+  const cookieStore = await cookies()
+  const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {

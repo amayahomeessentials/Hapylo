@@ -1,13 +1,13 @@
 import { cookies } from 'next/headers'
 import { createServerClient } from '@supabase/ssr'
 import { notFound, redirect } from 'next/navigation'
-import { Database } from '@/types/database.types'
+
 import Link from 'next/link'
 import Image from 'next/image'
 
 export default async function OrderDetailPage({ params }: { params: { orderId: string } }) {
-  const cookieStore = cookies()
-  const supabase = createServerClient<Database>(
+  const cookieStore = await cookies()
+  const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {

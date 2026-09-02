@@ -140,6 +140,8 @@ export default function LoginPage() {
     } finally {
       setForgotLoading(false)
     }
+  }
+
   const handleVerifyForgotOtp = async (e: React.FormEvent) => {
     e.preventDefault()
     setForgotError('')
