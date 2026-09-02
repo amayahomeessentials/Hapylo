@@ -27,6 +27,12 @@ const NAV_SECTIONS = [
       { href: '/admin/orders', label: 'Orders', icon: 'receipt_long', exact: false },
     ],
   },
+  {
+    label: 'People',
+    items: [
+      { href: '/admin/users', label: 'Users', icon: 'group', exact: false },
+    ],
+  },
 ]
 
 // ─── Breadcrumb ───────────────────────────────────────────────────────────────
@@ -37,6 +43,7 @@ const CRUMB_MAP: Record<string, string> = {
   '/admin/products/new': 'New Product',
   '/admin/categories': 'Categories',
   '/admin/orders': 'Orders',
+  '/admin/users': 'Users',
 }
 
 function Breadcrumb({ pathname }: { pathname: string }) {

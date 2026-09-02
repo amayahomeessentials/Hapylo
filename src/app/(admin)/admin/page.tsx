@@ -384,12 +384,13 @@ export default async function AdminDashboard() {
       </div>
 
       {/* ── Quick actions ── */}
-      <div className="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
         {[
           { href: '/admin/products/new', icon: 'add_box', label: 'Add Product', sub: 'Upload to Cloudinary' },
           { href: '/admin/products', icon: 'inventory_2', label: 'Products', sub: 'Edit, delete, toggle' },
           { href: '/admin/orders', icon: 'receipt_long', label: 'Orders', sub: 'Update status' },
           { href: '/admin/categories', icon: 'category', label: 'Categories', sub: 'Add & manage' },
+          { href: '/admin/users', icon: 'group', label: 'Users', sub: 'View customers' },
         ].map(a => (
           <Link
             key={a.href}

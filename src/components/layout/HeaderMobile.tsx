@@ -42,7 +42,7 @@ export function HeaderMobile({}: HeaderMobileProps) {
             href="/"
             className="flex items-center justify-center transition-opacity hover:opacity-90"
           >
-            <Image src="/logo.png" alt="Hapylo Logo" width={120} height={32} className="h-8 w-auto object-contain" priority />
+            <Image src="/logo.png" alt="Hapylo Logo" width={150} height={40} className="h-10 w-auto object-contain" priority />
           </Link>
 
           {/* Right: Sign In + Cart */}

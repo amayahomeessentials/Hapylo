@@ -604,3 +604,62 @@ export async function getCategoryProductCount(): Promise<Record<string, number>>
   })
   return map
 }
+
+// ─── Users ───────────────────────────────────────────────────────────────────
+
+export interface AdminUser {
+  id: string
+  email: string
+  full_name: string | null
+  created_at: string
+  last_sign_in_at: string | null
+  order_count: number
+}
+
+/** Fetch all registered users with profile info and order counts. */
+export async function getAdminUsers(): Promise<AdminUser[]> {
+  const supabase = createAdminClient()
+
+  // 1. Get all auth users
+  const { data: usersData, error: usersError } = await supabase.auth.admin.listUsers()
+  if (usersError) {
+    console.error('getAdminUsers listUsers error:', usersError)
+    return []
+  }
+
+  const authUsers = usersData?.users ?? []
+  const userIds = authUsers.map((u: { id: string }) => u.id)
+
+  // 2. Fetch profiles
+  const profilesMap: Record<string, string | null> = {}
+  if (userIds.length > 0) {
+    const { data: profiles } = await supabase
+      .from('profiles')
+      .select('id, full_name')
+      .in('id', userIds)
+    ;(profiles ?? []).forEach((p: { id: string; full_name: string | null }) => {
+      profilesMap[p.id] = p.full_name
+    })
+  }
+
+  // 3. Fetch order counts per user
+  const orderCountMap: Record<string, number> = {}
+  if (userIds.length > 0) {
+    const { data: orders } = await supabase
+      .from('orders')
+      .select('user_id')
+      .in('user_id', userIds)
+    ;(orders ?? []).forEach((o: { user_id: string | null }) => {
+      if (o.user_id) orderCountMap[o.user_id] = (orderCountMap[o.user_id] ?? 0) + 1
+    })
+  }
+
+  return authUsers.map((u: { id: string; email?: string; created_at: string; last_sign_in_at?: string | null }) => ({
+    id: u.id,
+    email: u.email ?? '',
+    full_name: profilesMap[u.id] ?? null,
+    created_at: u.created_at,
+    last_sign_in_at: u.last_sign_in_at ?? null,
+    order_count: orderCountMap[u.id] ?? 0,
+  }))
+}

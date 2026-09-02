@@ -40,7 +40,7 @@ export function HeaderDesktop({ activeHref = '/' }: HeaderDesktopProps) {
       <nav className="page-wrap flex h-[4.5rem] items-center justify-between gap-8 py-2">
         {/* Left: Logo */}
         <Link href="/" className="flex flex-none items-center transition-opacity hover:opacity-90">
-          <Image src="/logo.png" alt="Hapylo Logo" width={140} height={40} className="h-10 w-auto object-contain" priority />
+          <Image src="/logo.png" alt="Hapylo Logo" width={180} height={52} className="h-13 w-auto object-contain" priority />
         </Link>
 
         {/* Center: Search Bar */}
