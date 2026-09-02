@@ -2,8 +2,6 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 export async function POST(request: Request) {
   try {
     const { email, name, type } = await request.json();
@@ -47,6 +45,12 @@ export async function POST(request: Request) {
     // Send the OTP via Resend
     // By default, if the domain is not verified, use onboarding@resend.dev
     const fromEmail = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
+
+    if (!process.env.RESEND_API_KEY) {
+      console.error('RESEND_API_KEY is missing');
+      return NextResponse.json({ error: 'Email service configuration error' }, { status: 500 });
+    }
+    const resend = new Resend(process.env.RESEND_API_KEY);
 
     const { data: resendData, error: resendError } = await resend.emails.send({
       from: `Hapylo <${fromEmail}>`,
