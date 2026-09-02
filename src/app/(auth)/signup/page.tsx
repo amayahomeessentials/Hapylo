@@ -8,15 +8,27 @@ import { createClient } from '@/lib/supabase/client'
 
 export default function SignupPage() {
   const router = useRouter()
+  
+  // Auth methods state
+  const [signupMethod, setSignupMethod] = useState<'password' | 'otp'>('password')
+  
+  // Password state
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
+  
+  // Email OTP state
+  const [otpEmail, setOtpEmail] = useState('')
+  const [otpSent, setOtpSent] = useState(false)
+  const [otpCode, setOtpCode] = useState('')
+
+  // General state
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const [success, setSuccess] = useState(false)
+  const [success, setSuccess] = useState(false) // Only used for password flow
 
-  const handleSignup = async (e: React.FormEvent) => {
+  const handleSignupEmail = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
     setLoading(true)
@@ -34,6 +46,40 @@ export default function SignupPage() {
       setError(authError.message)
     } else {
       setSuccess(true)
+    }
+  }
+
+  const handleSendOtp = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError('')
+    setLoading(true)
+    const supabase = createClient()
+    const { error: otpError } = await supabase.auth.signInWithOtp({ 
+      email: otpEmail,
+      options: {
+        data: { full_name: name } // Save name on first signup
+      }
+    })
+    setLoading(false)
+    if (otpError) {
+      setError(otpError.message)
+    } else {
+      setOtpSent(true)
+    }
+  }
+
+  const handleVerifyOtp = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError('')
+    setLoading(true)
+    const supabase = createClient()
+    const { error: verifyError } = await supabase.auth.verifyOtp({ email: otpEmail, token: otpCode, type: 'email' })
+    if (verifyError) {
+      setError(verifyError.message)
+      setLoading(false)
+    } else {
+      router.push('/')
+      router.refresh()
     }
   }
 
@@ -103,7 +149,7 @@ export default function SignupPage() {
             Hapylo
           </Link>
 
-          {success ? (
+          {success && signupMethod === 'password' ? (
             <div className="flex flex-col items-center gap-5 py-6 text-center">
               <div className="flex h-16 w-16 items-center justify-center rounded-full bg-secondary-container">
                 <span className="material-symbols-outlined text-4xl text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>mark_email_read</span>
@@ -145,8 +191,30 @@ export default function SignupPage() {
               {/* Divider */}
               <div className="my-5 flex items-center gap-3">
                 <div className="h-px flex-1 bg-outline-variant" />
-                <span className="text-xs font-medium text-on-surface-variant">or sign up with email</span>
+                <span className="text-xs font-medium text-on-surface-variant">or continue with</span>
                 <div className="h-px flex-1 bg-outline-variant" />
+              </div>
+              
+              {/* Auth Method Tabs */}
+              <div className="mb-6 flex gap-2 rounded-xl bg-surface-container-low p-1">
+                <button
+                  type="button"
+                  onClick={() => { setSignupMethod('password'); setError(''); }}
+                  className={`flex-1 rounded-lg py-2 text-sm font-semibold transition-all ${
+                    signupMethod === 'password' ? 'bg-surface text-primary shadow-sm' : 'text-on-surface-variant hover:text-on-surface'
+                  }`}
+                >
+                  Password
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setSignupMethod('otp'); setError(''); }}
+                  className={`flex-1 rounded-lg py-2 text-sm font-semibold transition-all ${
+                    signupMethod === 'otp' ? 'bg-surface text-primary shadow-sm' : 'text-on-surface-variant hover:text-on-surface'
+                  }`}
+                >
+                  Email OTP
+                </button>
               </div>
 
               {error && (
@@ -156,90 +224,179 @@ export default function SignupPage() {
                 </div>
               )}
 
-              <form onSubmit={handleSignup} className="space-y-4">
-                {/* Full name */}
-                <div>
-                  <label htmlFor="full-name" className="block text-sm font-semibold text-on-surface">Full name</label>
-                  <input
-                    id="full-name"
-                    name="name"
-                    type="text"
-                    autoComplete="name"
-                    required
-                    value={name}
-                    onChange={e => setName(e.target.value)}
-                    className="mt-2 block w-full rounded-xl border border-outline-variant bg-surface px-4 py-3 text-sm text-on-surface placeholder-outline shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                    placeholder="Your full name"
-                  />
-                </div>
-
-                {/* Email */}
-                <div>
-                  <label htmlFor="signup-email" className="block text-sm font-semibold text-on-surface">Email address</label>
-                  <input
-                    id="signup-email"
-                    name="email"
-                    type="email"
-                    autoComplete="email"
-                    required
-                    value={email}
-                    onChange={e => setEmail(e.target.value)}
-                    className="mt-2 block w-full rounded-xl border border-outline-variant bg-surface px-4 py-3 text-sm text-on-surface placeholder-outline shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                    placeholder="you@example.com"
-                  />
-                </div>
-
-                {/* Password */}
-                <div>
-                  <label htmlFor="signup-password" className="block text-sm font-semibold text-on-surface">Password</label>
-                  <div className="relative mt-2">
+              {signupMethod === 'password' ? (
+                <form onSubmit={handleSignupEmail} className="space-y-4">
+                  {/* Full name */}
+                  <div>
+                    <label htmlFor="full-name" className="block text-sm font-semibold text-on-surface">Full name</label>
                     <input
-                      id="signup-password"
-                      name="password"
-                      type={showPassword ? 'text' : 'password'}
-                      autoComplete="new-password"
+                      id="full-name"
+                      name="name"
+                      type="text"
+                      autoComplete="name"
                       required
-                      minLength={8}
-                      value={password}
-                      onChange={e => setPassword(e.target.value)}
-                      className="block w-full rounded-xl border border-outline-variant bg-surface px-4 py-3 pr-12 text-sm text-on-surface placeholder-outline shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                      placeholder="At least 8 characters"
+                      value={name}
+                      onChange={e => setName(e.target.value)}
+                      className="mt-2 block w-full rounded-xl border border-outline-variant bg-surface px-4 py-3 text-sm text-on-surface placeholder-outline shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                      placeholder="Your full name"
                     />
-                    <button
-                      type="button"
-                      aria-label={showPassword ? 'Hide password' : 'Show password'}
-                      onClick={() => setShowPassword(v => !v)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant transition-colors hover:text-primary"
-                    >
-                      <span className="material-symbols-outlined text-[20px]">
-                        {showPassword ? 'visibility_off' : 'visibility'}
-                      </span>
-                    </button>
                   </div>
-                </div>
 
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="btn-primary w-full rounded-xl py-3.5 text-sm disabled:opacity-60"
-                >
-                  {loading ? (
-                    <span className="flex items-center justify-center gap-2">
-                      <span className="material-symbols-outlined animate-spin text-[18px]">progress_activity</span>
-                      Creating account…
-                    </span>
-                  ) : (
-                    'Create account'
+                  {/* Email */}
+                  <div>
+                    <label htmlFor="signup-email" className="block text-sm font-semibold text-on-surface">Email address</label>
+                    <input
+                      id="signup-email"
+                      name="email"
+                      type="email"
+                      autoComplete="email"
+                      required
+                      value={email}
+                      onChange={e => setEmail(e.target.value)}
+                      className="mt-2 block w-full rounded-xl border border-outline-variant bg-surface px-4 py-3 text-sm text-on-surface placeholder-outline shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                      placeholder="you@example.com"
+                    />
+                  </div>
+
+                  {/* Password */}
+                  <div>
+                    <label htmlFor="signup-password" className="block text-sm font-semibold text-on-surface">Password</label>
+                    <div className="relative mt-2">
+                      <input
+                        id="signup-password"
+                        name="password"
+                        type={showPassword ? 'text' : 'password'}
+                        autoComplete="new-password"
+                        required
+                        minLength={8}
+                        value={password}
+                        onChange={e => setPassword(e.target.value)}
+                        className="block w-full rounded-xl border border-outline-variant bg-surface px-4 py-3 pr-12 text-sm text-on-surface placeholder-outline shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                        placeholder="At least 8 characters"
+                      />
+                      <button
+                        type="button"
+                        aria-label={showPassword ? 'Hide password' : 'Show password'}
+                        onClick={() => setShowPassword(v => !v)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant transition-colors hover:text-primary"
+                      >
+                        <span className="material-symbols-outlined text-[20px]">
+                          {showPassword ? 'visibility_off' : 'visibility'}
+                        </span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="btn-primary w-full rounded-xl py-3.5 text-sm disabled:opacity-60"
+                  >
+                    {loading ? (
+                      <span className="flex items-center justify-center gap-2">
+                        <span className="material-symbols-outlined animate-spin text-[18px]">progress_activity</span>
+                        Creating account…
+                      </span>
+                    ) : (
+                      'Create account'
+                    )}
+                  </button>
+
+                  <p className="text-center text-xs leading-relaxed text-on-surface-variant">
+                    By creating an account, you agree to our{' '}
+                    <Link href="/privacy-policy" className="font-semibold text-primary hover:underline">
+                      Privacy Policy
+                    </Link>
+                  </p>
+                </form>
+              ) : (
+                <form onSubmit={otpSent ? handleVerifyOtp : handleSendOtp} className="space-y-4">
+                  {/* Full name (Collected upfront) */}
+                  {!otpSent && (
+                    <div>
+                      <label htmlFor="full-name-otp" className="block text-sm font-semibold text-on-surface">Full name</label>
+                      <input
+                        id="full-name-otp"
+                        name="name"
+                        type="text"
+                        autoComplete="name"
+                        required
+                        value={name}
+                        onChange={e => setName(e.target.value)}
+                        className="mt-2 block w-full rounded-xl border border-outline-variant bg-surface px-4 py-3 text-sm text-on-surface placeholder-outline shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                        placeholder="Your full name"
+                      />
+                    </div>
                   )}
-                </button>
+                  
+                  {/* Email OTP */}
+                  {!otpSent ? (
+                    <div>
+                      <label htmlFor="otp-email" className="block text-sm font-semibold text-on-surface">
+                        Email address
+                      </label>
+                      <input
+                        id="otp-email"
+                        name="otpEmail"
+                        type="email"
+                        autoComplete="email"
+                        required
+                        value={otpEmail}
+                        onChange={e => setOtpEmail(e.target.value)}
+                        className="mt-2 block w-full rounded-xl border border-outline-variant bg-surface px-4 py-3 text-sm text-on-surface placeholder-outline shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                        placeholder="you@example.com"
+                      />
+                    </div>
+                  ) : (
+                    <div>
+                      <label htmlFor="otp-code" className="block text-sm font-semibold text-on-surface">
+                        Verification Code
+                      </label>
+                      <p className="mt-1 mb-2 text-xs text-on-surface-variant">We sent a 6-digit code to {otpEmail}</p>
+                      <input
+                        id="otp-code"
+                        name="otpCode"
+                        type="text"
+                        autoComplete="one-time-code"
+                        required
+                        value={otpCode}
+                        onChange={e => setOtpCode(e.target.value)}
+                        className="block w-full rounded-xl border border-outline-variant bg-surface px-4 py-3 text-sm text-on-surface placeholder-outline shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                        placeholder="123456"
+                      />
+                      <button 
+                        type="button" 
+                        onClick={() => { setOtpSent(false); setOtpCode(''); setError(''); }}
+                        className="mt-2 text-xs font-semibold text-primary hover:underline"
+                      >
+                        Change email address
+                      </button>
+                    </div>
+                  )}
+                  
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="btn-primary w-full rounded-xl py-3.5 text-sm disabled:opacity-60"
+                  >
+                    {loading ? (
+                      <span className="flex items-center justify-center gap-2">
+                        <span className="material-symbols-outlined animate-spin text-[18px]">progress_activity</span>
+                        {otpSent ? 'Verifying…' : 'Sending…'}
+                      </span>
+                    ) : (
+                      otpSent ? 'Verify & Create account' : 'Send Magic Code'
+                    )}
+                  </button>
 
-                <p className="text-center text-xs leading-relaxed text-on-surface-variant">
-                  By creating an account, you agree to our{' '}
-                  <Link href="/privacy-policy" className="font-semibold text-primary hover:underline">
-                    Privacy Policy
-                  </Link>
-                </p>
-              </form>
+                  <p className="text-center text-xs leading-relaxed text-on-surface-variant">
+                    By creating an account, you agree to our{' '}
+                    <Link href="/privacy-policy" className="font-semibold text-primary hover:underline">
+                      Privacy Policy
+                    </Link>
+                  </p>
+                </form>
+              )}
             </>
           )}
         </div>
