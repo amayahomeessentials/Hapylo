@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useCart } from '@/hooks/useCart'
+import Image from 'next/image'
 
 const navLinks = [
   { href: '/', label: 'Home' },
@@ -38,8 +39,8 @@ export function HeaderDesktop({ activeHref = '/' }: HeaderDesktopProps) {
     <header className="sticky top-0 z-50 hidden flex-col glass-panel transition-all duration-300 md:flex">
       <nav className="page-wrap flex h-[4.5rem] items-center justify-between gap-8 py-2">
         {/* Left: Logo */}
-        <Link href="/" className="flex flex-none items-center gap-2 font-display text-3xl font-extrabold tracking-[-0.06em] text-primary transition-colors hover:text-primary-hover">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-sm tracking-normal text-white">H</span>Hapylo
+        <Link href="/" className="flex flex-none items-center transition-opacity hover:opacity-90">
+          <Image src="/logo.png" alt="Hapylo Logo" width={140} height={40} className="h-10 w-auto object-contain" priority />
         </Link>
 
         {/* Center: Search Bar */}

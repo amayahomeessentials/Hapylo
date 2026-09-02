@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { useCart } from '@/hooks/useCart'
 import { MobileNavDrawer } from './MobileNavDrawer'
+import Image from 'next/image'
 
 interface HeaderMobileProps {
   cartCount?: number
@@ -39,10 +40,9 @@ export function HeaderMobile({}: HeaderMobileProps) {
           {/* Center: Logo */}
           <Link
             href="/"
-            className="font-display text-[1.4rem] font-extrabold tracking-[-0.06em] text-primary"
+            className="flex items-center justify-center transition-opacity hover:opacity-90"
           >
-            <span className="inline-flex h-6 w-6 items-center justify-center rounded-md bg-primary text-[11px] tracking-normal text-white mr-1">H</span>
-            Hapylo
+            <Image src="/logo.png" alt="Hapylo Logo" width={120} height={32} className="h-8 w-auto object-contain" priority />
           </Link>
 
           {/* Right: Sign In + Cart */}
