@@ -58,7 +58,6 @@ export default function SignupPage() {
       email: otpEmail,
       options: {
         data: { full_name: name }, // Save name on first signup
-        emailRedirectTo: `${window.location.origin}/api/auth/callback`
       }
     })
     setLoading(false)
