@@ -4,6 +4,7 @@ import { Suspense } from 'react'
 import './globals.css'
 import { NavigationProgress } from '@/components/layout/NavigationProgress'
 import { ToastProvider } from '@/components/ui/Toast'
+import { SpeedInsights } from '@vercel/speed-insights/next'
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -61,6 +62,7 @@ export default function RootLayout({
           </Suspense>
           {children}
         </ToastProvider>
+        <SpeedInsights />
       </body>
     </html>
   )
