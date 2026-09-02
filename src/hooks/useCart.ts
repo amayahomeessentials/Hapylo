@@ -1,73 +1,128 @@
-import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
-import { CartItem, Product } from '@/types/database.types'
+'use client'
 
-interface CartState {
+import { create } from 'zustand'
+import { persist, createJSONStorage } from 'zustand/middleware'
+import { Product, CartItem } from '@/types/database.types'
+
+export type { CartItem }
+
+interface CartStore {
   items: CartItem[]
-  addItem: (product: Product, quantity: number, selectedScent?: string) => void
+  isOpen: boolean
+  addItem: (product: Product, quantity?: number, selectedScent?: string) => void
   removeItem: (productId: string, selectedScent?: string) => void
   updateQuantity: (productId: string, quantity: number, selectedScent?: string) => void
   clearCart: () => void
+  openCart: () => void
+  closeCart: () => void
+  getItemCount: () => number
+  getSubtotal: () => number
   getCartTotal: () => number
-  getCartCount: () => number
+  getShipping: () => number
+  getTotal: () => number
 }
 
-export const useCart = create<CartState>()(
+const matchItem = (item: CartItem, productId: string, selectedScent?: string) => {
+  if (selectedScent !== undefined) {
+    return item.product.id === productId && (item.selectedScent || '') === (selectedScent || '')
+  }
+  return item.product.id === productId
+}
+
+export const useCart = create<CartStore>()(
   persist(
     (set, get) => ({
       items: [],
-      
-      addItem: (product, quantity, selectedScent) => {
-        set((state) => {
-          const existingItemIndex = state.items.findIndex(
-            (item) => item.product.id === product.id && item.selectedScent === selectedScent
-          )
+      isOpen: false,
 
-          if (existingItemIndex > -1) {
-            // Update quantity if item exists with same scent
-            const newItems = [...state.items]
-            newItems[existingItemIndex].quantity += quantity
-            return { items: newItems }
-          }
+      addItem: (product: Product, quantity = 1, selectedScent?: string) => {
+        const items = get().items
+        const scent = selectedScent || product.scents?.[0]?.name
+        const existingIndex = items.findIndex((i) => matchItem(i, product.id, scent))
 
-          // Add new item
-          return {
-            items: [...state.items, { product, quantity, selectedScent }]
+        if (existingIndex > -1) {
+          const updatedItems = [...items]
+          updatedItems[existingIndex] = {
+            ...updatedItems[existingIndex],
+            quantity: updatedItems[existingIndex].quantity + quantity,
           }
+          set({ items: updatedItems, isOpen: true })
+        } else {
+          set({
+            items: [
+              ...items,
+              {
+                product,
+                quantity: Math.max(1, quantity),
+                selectedScent: scent,
+              },
+            ],
+            isOpen: true,
+          })
+        }
+      },
+
+      removeItem: (productId: string, selectedScent?: string) => {
+        set({
+          items: get().items.filter((i) => !matchItem(i, productId, selectedScent)),
         })
       },
 
-      removeItem: (productId, selectedScent) => {
-        set((state) => ({
-          items: state.items.filter(
-            (item) => !(item.product.id === productId && item.selectedScent === selectedScent)
-          )
-        }))
+      updateQuantity: (productId: string, quantity: number, selectedScent?: string) => {
+        if (quantity <= 0) {
+          get().removeItem(productId, selectedScent)
+          return
+        }
+
+        set({
+          items: get().items.map((i) =>
+            matchItem(i, productId, selectedScent) ? { ...i, quantity } : i
+          ),
+        })
       },
 
-      updateQuantity: (productId, quantity, selectedScent) => {
-        set((state) => ({
-          items: state.items.map((item) => {
-            if (item.product.id === productId && item.selectedScent === selectedScent) {
-              return { ...item, quantity: Math.max(0, quantity) }
-            }
-            return item
-          }).filter((item) => item.quantity > 0) // Remove if quantity becomes 0
-        }))
+      clearCart: () => {
+        set({ items: [] })
       },
 
-      clearCart: () => set({ items: [] }),
+      openCart: () => {
+        set({ isOpen: true })
+      },
+
+      closeCart: () => {
+        set({ isOpen: false })
+      },
+
+      getItemCount: () => {
+        return get().items.reduce((total, item) => total + item.quantity, 0)
+      },
+
+      getSubtotal: () => {
+        return get().items.reduce(
+          (total, item) => total + (item.product?.price || 0) * item.quantity,
+          0
+        )
+      },
 
       getCartTotal: () => {
-        return get().items.reduce((total, item) => total + item.product.price * item.quantity, 0)
+        return get().getSubtotal()
       },
 
-      getCartCount: () => {
-        return get().items.reduce((count, item) => count + item.quantity, 0)
-      }
+      getShipping: () => {
+        const subtotal = get().getSubtotal()
+        if (subtotal === 0) return 0
+        return subtotal >= 500 ? 0 : 50
+      },
+
+      getTotal: () => {
+        const subtotal = get().getSubtotal()
+        const shipping = get().getShipping()
+        return subtotal + shipping
+      },
     }),
     {
-      name: 'hapylo-cart-storage',
+      name: 'hapylo-cart',
+      storage: createJSONStorage(() => localStorage),
     }
   )
 )

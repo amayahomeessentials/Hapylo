@@ -19,6 +19,7 @@ interface HeaderDesktopProps {
 export function HeaderDesktop({ activeHref = '/' }: HeaderDesktopProps) {
   const router = useRouter()
   const items = useCart(state => state.items)
+  const openCart = useCart(state => state.openCart)
   const [mounted, setMounted] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
 
@@ -79,7 +80,14 @@ export function HeaderDesktop({ activeHref = '/' }: HeaderDesktopProps) {
             <span className="text-sm font-bold leading-tight">&amp; Orders</span>
           </Link>
 
-          <Link href="/cart" className="relative flex items-center gap-1.5 rounded-lg bg-primary px-3.5 py-2 text-white transition-colors hover:bg-primary-hover shadow-primary-glow">
+          <Link
+            href="/cart"
+            onClick={(e) => {
+              e.preventDefault()
+              openCart()
+            }}
+            className="relative flex items-center gap-1.5 rounded-lg bg-primary px-3.5 py-2 text-white transition-colors hover:bg-primary-hover shadow-primary-glow"
+          >
             <div className="relative flex items-center">
               <span className="material-symbols-outlined text-[22px] leading-none">shopping_cart</span>
               {mounted && cartCount > 0 && (

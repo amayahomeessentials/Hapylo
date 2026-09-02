@@ -5,7 +5,8 @@ import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 
-export default async function OrderDetailPage({ params }: { params: { orderId: string } }) {
+export default async function OrderDetailPage({ params }: { params: Promise<{ orderId: string }> }) {
+  const { orderId } = await params
   const cookieStore = await cookies()
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -30,7 +31,7 @@ export default async function OrderDetailPage({ params }: { params: { orderId: s
       addresses(*),
       order_items(*, products(*))
     `)
-    .eq('id', params.orderId)
+    .eq('id', orderId)
     .eq('user_id', session.user.id)
     .single()
 

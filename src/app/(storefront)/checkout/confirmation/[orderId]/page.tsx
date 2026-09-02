@@ -4,7 +4,8 @@ import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
 
 
-export default async function OrderConfirmationPage({ params }: { params: { orderId: string } }) {
+export default async function OrderConfirmationPage({ params }: { params: Promise<{ orderId: string }> }) {
+  const { orderId } = await params
   const cookieStore = await cookies()
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -17,22 +18,22 @@ export default async function OrderConfirmationPage({ params }: { params: { orde
   )
 
   const { data: { session } } = await supabase.auth.getSession()
-  
-  if (!session) {
-    redirect('/login')
-  }
 
   // Fetch the order and its items
-  const { data: order, error } = await supabase
+  let query = supabase
     .from('orders')
     .select(`
       *,
       order_items(*, products(*)),
       addresses(*)
     `)
-    .eq('id', params.orderId)
-    .eq('user_id', session.user.id)
-    .single()
+    .eq('id', orderId)
+
+  if (session?.user?.id) {
+    query = query.eq('user_id', session.user.id)
+  }
+
+  const { data: order, error } = await query.single()
 
   if (error || !order) {
     notFound()

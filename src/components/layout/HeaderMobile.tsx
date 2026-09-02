@@ -12,6 +12,7 @@ interface HeaderMobileProps {
 
 export function HeaderMobile({}: HeaderMobileProps) {
   const items = useCart(state => state.items)
+  const openCart = useCart(state => state.openCart)
   const [mounted, setMounted] = useState(false)
   const [drawerOpen, setDrawerOpen] = useState(false)
 
@@ -60,6 +61,10 @@ export function HeaderMobile({}: HeaderMobileProps) {
             {/* Cart */}
             <Link
               href="/cart"
+              onClick={(e) => {
+                e.preventDefault()
+                openCart()
+              }}
               aria-label="Cart"
               className="relative flex h-9 w-9 items-center justify-center rounded-full bg-primary text-white shadow-primary-glow"
             >

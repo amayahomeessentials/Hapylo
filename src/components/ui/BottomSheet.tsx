@@ -1,58 +1,84 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, ReactNode } from 'react'
 
 interface BottomSheetProps {
-  open: boolean
+  isOpen?: boolean
+  open?: boolean
   onClose: () => void
   title?: string
-  children: React.ReactNode
-  footer?: React.ReactNode
+  footer?: ReactNode
+  children: ReactNode
+  snapPoints?: number[] // e.g., [0.3, 0.6, 0.9] for 30%, 60%, 90% of screen height
 }
 
-export function BottomSheet({ open, onClose, title, children, footer }: BottomSheetProps) {
+export function BottomSheet({
+  isOpen,
+  open,
+  onClose,
+  title,
+  footer,
+  children,
+  snapPoints = [0.9],
+}: BottomSheetProps) {
+  const isSheetOpen = open !== undefined ? open : !!isOpen
   const sheetRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (open) {
+    if (isSheetOpen) {
       document.body.style.overflow = 'hidden'
-    } else {
-      document.body.style.overflow = ''
     }
-    return () => { document.body.style.overflow = '' }
-  }, [open])
 
-  if (!open) return null
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [isSheetOpen])
+
+  if (!isSheetOpen) return null
+
+  const maxHeight = `${Math.max(...snapPoints) * 100}vh`
 
   return (
-    <div className="animate-fade-in fixed inset-0 z-50 flex items-end justify-center">
+    <div className="fixed inset-0 z-[9998] md:hidden">
+      {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-inverse-surface/40 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fade-in"
         onClick={onClose}
       />
+
+      {/* Bottom Sheet */}
       <div
         ref={sheetRef}
-        className="animate-slide-up relative flex max-h-[85vh] w-full flex-col overflow-hidden rounded-t-xl border-t border-outline-variant bg-surface shadow-lg"
+        className="absolute bottom-0 left-0 right-0 bg-surface rounded-t-3xl shadow-2xl animate-slide-up flex flex-col"
+        style={{ maxHeight }}
       >
-        <div className="flex w-full shrink-0 justify-center pt-3 pb-1">
-          <div className="h-1.5 w-12 rounded-full bg-surface-variant" />
+        {/* Drag handle */}
+        <div className="flex justify-center pt-3 pb-2 shrink-0">
+          <div className="w-12 h-1.5 bg-outline-variant rounded-full" />
         </div>
+
+        {/* Header */}
         {title && (
-          <div className="flex shrink-0 items-center justify-between border-b border-outline-variant px-6 pb-4">
-            <h2 className="font-display text-h4 text-on-surface">{title}</h2>
+          <div className="flex items-center justify-between px-6 py-3 border-b border-outline-variant shrink-0">
+            <h3 className="text-lg font-bold text-on-surface">{title}</h3>
             <button
-              className="font-label text-label-md text-on-surface-variant transition-colors hover:text-primary"
               onClick={onClose}
+              className="text-on-surface-variant hover:text-on-surface transition-colors"
+              aria-label="Close"
             >
-              Clear All
+              <span className="material-symbols-outlined text-xl">close</span>
             </button>
           </div>
         )}
-        <div className="flex-grow overflow-y-auto px-6 py-4">
+
+        {/* Content */}
+        <div className="overflow-y-auto px-6 py-5 flex-1">
           {children}
         </div>
+
+        {/* Footer */}
         {footer && (
-          <div className="shrink-0 border-t border-outline-variant bg-surface p-6">
+          <div className="px-6 py-4 border-t border-outline-variant bg-surface shrink-0">
             {footer}
           </div>
         )}

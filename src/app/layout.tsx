@@ -3,6 +3,7 @@ import { Inter, Poppins } from 'next/font/google'
 import { Suspense } from 'react'
 import './globals.css'
 import { NavigationProgress } from '@/components/layout/NavigationProgress'
+import { ToastProvider } from '@/components/ui/Toast'
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -54,10 +55,12 @@ export default function RootLayout({
         />
       </head>
       <body className="bg-background text-on-background font-body antialiased">
-        <Suspense fallback={null}>
-          <NavigationProgress />
-        </Suspense>
-        {children}
+        <ToastProvider>
+          <Suspense fallback={null}>
+            <NavigationProgress />
+          </Suspense>
+          {children}
+        </ToastProvider>
       </body>
     </html>
   )
