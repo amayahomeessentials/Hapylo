@@ -18,6 +18,7 @@ interface ProductCardProps {
 export function ProductCard({ product, className = '' }: ProductCardProps) {
   const [addedToCart, setAddedToCart] = useState(false)
   const addItem = useCart((state) => state.addItem)
+  const openCart = useCart((state) => state.openCart)
   const { toggleItem, isWishlisted } = useWishlist()
   const wishlisted = isWishlisted(product.id)
 
@@ -28,9 +29,15 @@ export function ProductCard({ product, className = '' }: ProductCardProps) {
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
+
+    if (addedToCart) {
+      openCart()
+      return
+    }
+
     addItem(product, 1, product.scents?.[0]?.name)
     setAddedToCart(true)
-    setTimeout(() => setAddedToCart(false), 1500)
+    setTimeout(() => setAddedToCart(false), 4000)
   }
 
   const handleWishlist = (e: React.MouseEvent) => {
@@ -135,14 +142,14 @@ export function ProductCard({ product, className = '' }: ProductCardProps) {
           onClick={handleAddToCart}
           className={`mt-2 flex w-full items-center justify-center gap-1.5 rounded-lg py-2 text-xs font-semibold shadow-sm transition-all duration-200 md:hidden ${
             addedToCart
-              ? 'bg-secondary-container text-primary'
-              : 'bg-primary text-white'
+              ? 'bg-secondary-container text-primary ring-1 ring-primary/25'
+              : 'bg-primary text-white active:scale-95'
           }`}
         >
           <span className="material-symbols-outlined text-[15px]">
-            {addedToCart ? 'check_circle' : 'add_shopping_cart'}
+            {addedToCart ? 'shopping_bag' : 'add_shopping_cart'}
           </span>
-          {addedToCart ? 'Added!' : 'Add to Cart'}
+          <span>{addedToCart ? 'Go to Cart →' : 'Add to Cart'}</span>
         </button>
       </div>
     </Link>

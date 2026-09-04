@@ -9,12 +9,20 @@ export type { CartItem }
 interface CartStore {
   items: CartItem[]
   isOpen: boolean
-  addItem: (product: Product, quantity?: number, selectedScent?: string) => void
+  lastAddedItem: { product: Product; quantity: number; selectedScent?: string } | null
+  notificationOpen: boolean
+  addItem: (
+    product: Product,
+    quantity?: number,
+    selectedScent?: string,
+    options?: { openDrawer?: boolean }
+  ) => void
   removeItem: (productId: string, selectedScent?: string) => void
   updateQuantity: (productId: string, quantity: number, selectedScent?: string) => void
   clearCart: () => void
   openCart: () => void
   closeCart: () => void
+  closeNotification: () => void
   getItemCount: () => number
   getSubtotal: () => number
   getCartTotal: () => number
@@ -34,32 +42,47 @@ export const useCart = create<CartStore>()(
     (set, get) => ({
       items: [],
       isOpen: false,
+      lastAddedItem: null,
+      notificationOpen: false,
 
-      addItem: (product: Product, quantity = 1, selectedScent?: string) => {
+      addItem: (
+        product: Product,
+        quantity = 1,
+        selectedScent?: string,
+        options?: { openDrawer?: boolean }
+      ) => {
+        const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
+        const shouldOpenDrawer =
+          options?.openDrawer !== undefined ? options.openDrawer : !isMobile
+
         const items = get().items
         const scent = selectedScent || product.scents?.[0]?.name
         const existingIndex = items.findIndex((i) => matchItem(i, product.id, scent))
 
+        let updatedItems: CartItem[]
         if (existingIndex > -1) {
-          const updatedItems = [...items]
+          updatedItems = [...items]
           updatedItems[existingIndex] = {
             ...updatedItems[existingIndex],
             quantity: updatedItems[existingIndex].quantity + quantity,
           }
-          set({ items: updatedItems, isOpen: true })
         } else {
-          set({
-            items: [
-              ...items,
-              {
-                product,
-                quantity: Math.max(1, quantity),
-                selectedScent: scent,
-              },
-            ],
-            isOpen: true,
-          })
+          updatedItems = [
+            ...items,
+            {
+              product,
+              quantity: Math.max(1, quantity),
+              selectedScent: scent,
+            },
+          ]
         }
+
+        set({
+          items: updatedItems,
+          isOpen: shouldOpenDrawer ? true : get().isOpen,
+          lastAddedItem: { product, quantity, selectedScent: scent },
+          notificationOpen: isMobile,
+        })
       },
 
       removeItem: (productId: string, selectedScent?: string) => {
@@ -86,11 +109,15 @@ export const useCart = create<CartStore>()(
       },
 
       openCart: () => {
-        set({ isOpen: true })
+        set({ isOpen: true, notificationOpen: false })
       },
 
       closeCart: () => {
         set({ isOpen: false })
+      },
+
+      closeNotification: () => {
+        set({ notificationOpen: false })
       },
 
       getItemCount: () => {
@@ -123,6 +150,7 @@ export const useCart = create<CartStore>()(
     {
       name: 'hapylo-cart',
       storage: createJSONStorage(() => localStorage),
+      partialize: (state) => ({ items: state.items } as unknown as CartStore),
     }
   )
 )

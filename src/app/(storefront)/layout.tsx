@@ -2,6 +2,7 @@ import { HeaderDesktop } from '@/components/layout/HeaderDesktop'
 import { HeaderMobile } from '@/components/layout/HeaderMobile'
 import { Footer } from '@/components/layout/Footer'
 import { CartDrawer } from '@/components/cart/CartDrawer'
+import { CartNotification } from '@/components/cart/CartNotification'
 
 export default function StorefrontLayout({
   children,
@@ -17,6 +18,7 @@ export default function StorefrontLayout({
       </main>
       <Footer />
       <CartDrawer />
+      <CartNotification />
     </div>
   )
 }

@@ -32,6 +32,8 @@ export default function PDPClient({ product, relatedProducts }: PDPClientProps) 
   }, [])
 
   const addItem = useCart(state => state.addItem)
+  const openCart = useCart(state => state.openCart)
+  const [addedToCart, setAddedToCart] = useState(false)
   const { toggleItem, isWishlisted } = useWishlist()
   const wishlisted = isWishlisted(product.id)
   const router = useRouter()
@@ -48,7 +50,13 @@ export default function PDPClient({ product, relatedProducts }: PDPClientProps) 
   }
 
   const handleAddToCart = () => {
+    if (addedToCart) {
+      openCart()
+      return
+    }
     addItem(product, quantity, selectedScent)
+    setAddedToCart(true)
+    setTimeout(() => setAddedToCart(false), 4000)
   }
 
   const handleBuyNow = () => {
@@ -229,10 +237,16 @@ export default function PDPClient({ product, relatedProducts }: PDPClientProps) 
             <div className="flex flex-col gap-4 sm:flex-row">
               <button 
                 onClick={handleAddToCart}
-                className="btn-primary flex flex-1 items-center justify-center gap-2 py-4 text-base"
+                className={`flex flex-1 items-center justify-center gap-2 py-4 text-base font-semibold rounded-lg transition-all duration-200 ${
+                  addedToCart
+                    ? 'bg-secondary-container text-primary ring-2 ring-primary shadow-md'
+                    : 'btn-primary'
+                }`}
               >
-                <span className="material-symbols-outlined">shopping_cart</span>
-                Add to Cart
+                <span className="material-symbols-outlined">
+                  {addedToCart ? 'shopping_bag' : 'shopping_cart'}
+                </span>
+                <span>{addedToCart ? 'Added! Go to Cart →' : 'Add to Cart'}</span>
               </button>
               <button 
                 onClick={handleBuyNow}
@@ -324,11 +338,22 @@ export default function PDPClient({ product, relatedProducts }: PDPClientProps) 
           </div>
           <button 
             onClick={handleAddToCart}
-            className="btn-primary flex flex-grow md:flex-grow-0 items-center justify-center gap-2 px-8 py-3 text-sm"
+            className={`flex flex-grow md:flex-grow-0 items-center justify-center gap-2 px-8 py-3 text-sm font-semibold rounded-lg transition-all duration-200 ${
+              addedToCart
+                ? 'bg-secondary-container text-primary ring-1 ring-primary'
+                : 'btn-primary'
+            }`}
           >
-            <span>Add to Cart</span>
-            <span className="md:hidden">·</span>
-            <span className="md:hidden">₹{totalPrice}</span>
+            <span className="material-symbols-outlined text-[18px]">
+              {addedToCart ? 'shopping_bag' : 'shopping_cart'}
+            </span>
+            <span>{addedToCart ? 'Go to Cart →' : 'Add to Cart'}</span>
+            {!addedToCart && (
+              <>
+                <span className="md:hidden">·</span>
+                <span className="md:hidden">₹{totalPrice}</span>
+              </>
+            )}
           </button>
         </div>
       </div>
